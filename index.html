@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>deployy - Code Viewer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f0f0f;
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            padding: 60px 20px 40px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #0f0f0f 100%);
+        }
+
+        .header h1 {
+            font-size: 72px;
+            font-weight: 800;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 18px;
+            color: #888;
+            font-weight: 300;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px 80px;
+        }
+
+        .file-section {
+            margin-bottom: 40px;
+        }
+
+        .file-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            background: #1e1e2e;
+            border-radius: 8px 8px 0 0;
+            border: 1px solid #2d2d3d;
+            border-bottom: none;
+        }
+
+        .file-header .file-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #a0a0c0;
+        }
+
+        .file-header .lang-badge {
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            background: #2d2d3d;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        pre {
+            margin: 0 !important;
+            border-radius: 0 0 8px 8px !important;
+            border: 1px solid #2d2d3d;
+            border-top: none;
+        }
+
+        pre code {
+            font-size: 13px;
+            line-height: 1.6;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+        }
+
+        .copy-btn {
+            background: none;
+            border: 1px solid #2d2d3d;
+            color: #888;
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: #2d2d3d;
+            color: #fff;
+        }
+
+        .copy-btn.copied {
+            background: #2ea043;
+            color: #fff;
+            border-color: #2ea043;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #555;
+            font-size: 13px;
+        }
+
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 48px;
+            }
+            .header {
+                padding: 40px 20px 30px;
+            }
+            pre code {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>deployy</h1>
+        <p>CRUD Application — Code Viewer</p>
+    </div>
+
+    <div class="container">
+        <div class="file-section">
+            <div class="file-header">
+                <span class="file-name">frontend.html</span>
+                <span class="lang-badge">HTML / JSX</span>
+            </div>
+            <pre><code class="language-html" id="code-frontend"></code></pre>
+        </div>
+
+        <div class="file-section">
+            <div class="file-header">
+                <span class="file-name">server.js</span>
+                <span class="lang-badge">JavaScript</span>
+            </div>
+            <pre><code class="language-javascript" id="code-server"></code></pre>
+        </div>
+    </div>
+
+    <div class="footer">
+        Built with &#9829; &mdash; <a href="https://wbt-eta.vercel.app/" target="_blank">wbt-eta.vercel.app</a>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        const frontendCode = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD Operations</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+function Dashboard() {
+    const [emps, setEmps] = useState([]);
+    const [emp, setEmp] = useState({ no: 0, name: "", address: "" });
+
+    var url = "/api/employee";
+
+    const getData = () => {
+        axios.get(url).then((result) => {
+            setEmps(result.data);
+        });
+    };
+
+    useEffect(() => {
+        getData();
+    }, []);
+
+    const onTextChange = (args) => {
+        var CpyEmp = { ...emp };
+        CpyEmp[args.target.name] = args.target.value;
+        setEmp(CpyEmp);
+    };
+
+    const AddRecord = () => {
+        axios.post(url, emp).then((result) => {
+            if (result.data.affectedRows > 0) {
+                setEmp({ no: 0, name: "", address: "" });
+                getData();
+            } else {
+                alert("Something Wrong!");
+            }
+        });
+    };
+
+    const edit = (e) => {
+        setEmp(e);
+    };
+
+    const UpdateRecord = () => {
+        axios.put(\`\${url}/\${emp.no}\`, emp).then((result) => {
+            if (result.data.affectedRows > 0) {
+                alert("Record Updated Successfully");
+                setEmp({ no: 0, name: "", address: "" });
+                getData();
+            } else {
+                alert("Update Failed");
+            }
+        });
+    };
+
+    const remove = (id) => {
+        axios.delete(\`\${url}/\${id}\`).then((result) => {
+            if (result.data.affectedRows > 0) {
+                alert("Record Deleted");
+                getData();
+            } else {
+                alert("Delete Failed");
+            }
+        });
+    };
+
+    return (
+        <>
+            <center>
+                <h1>Crud Operations</h1>
+            </center>
+
+            <div className="container">
+                <label>Name</label>
+                <input
+                    className="form-control"
+                    type="text"
+                    value={emp.name}
+                    name="name"
+                    onChange={onTextChange}
+                />
+
+                <hr />
+
+                <label>Address</label>
+                <input
+                    className="form-control"
+                    type="text"
+                    value={emp.address}
+                    name="address"
+                    onChange={onTextChange}
+                />
+
+                <hr />
+
+                <div>
+                    <button className="btn btn-primary me-2" onClick={AddRecord}>
+                        Add Record
+                    </button>
+
+                    <button className="btn btn-success" onClick={UpdateRecord}>
+                        Update Record
+                    </button>
+                </div>
+
+                <hr />
+
+                <div className="table table-responsive">
+                    <table className="table table-bordered text-center">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Address</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {emps.map((e) => {
+                                return (
+                                    <tr key={e.no}>
+                                        <td>{e.no}</td>
+                                        <td>{e.name}</td>
+                                        <td>{e.address}</td>
+
+                                        <td>
+                                            <button
+                                                className="btn btn-warning me-2"
+                                                onClick={() => edit(e)}
+                                            >
+                                                Edit
+                                            </button>
+
+                                            <button
+                                                className="btn btn-danger"
+                                                onClick={() => remove(e.no)}
+                                            >
+                                                Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </>
+    );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<Dashboard />);
+<\/script>
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"><\/script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"><\/script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"><\/script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"><\/script>
+
+</body>
+</html>`;
+
+        const serverCode = `const express = require("express");
+const cors = require("cors");
+const path = require("path");
+const mysql2 = require("mysql2/promise");
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+app.use(cors());
+app.use(express.json());
+
+app.use(express.static(__dirname));
+
+const pool = mysql2.createPool({
+  host: process.env.DB_HOST || "localhost",
+  port: process.env.DB_PORT || "3306",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "root123",
+  database: process.env.DB_NAME || "iacsd",
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+});
+
+async function initDb() {
+  try {
+    await pool.query(\`CREATE TABLE IF NOT EXISTS emp(
+      no INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR(50),
+      address VARCHAR(100)
+    )\`);
+    console.log("Table created or already exists");
+  } catch (err) {
+    console.error("Table creation failed", err);
+  }
+}
+initDb();
+
+app.get("/api/employee", async (req, res) => {
+  try {
+    const [rows] = await pool.query("SELECT * FROM emp");
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.post("/api/employee", async (req, res) => {
+  const { name, address } = req.body;
+  try {
+    const [result] = await pool.query(
+      "INSERT INTO emp(name, address) VALUES (?, ?)",
+      [name, address]
+    );
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.put("/api/employee/:no", async (req, res) => {
+  const { name, address } = req.body;
+  try {
+    const [result] = await pool.query(
+      "UPDATE emp SET name = ?, address = ? WHERE no = ?",
+      [name, address, req.params.no]
+    );
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.delete("/api/employee/:no", async (req, res) => {
+  try {
+    const [result] = await pool.query("DELETE FROM emp WHERE no = ?", [req.params.no]);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.listen(PORT, () => {
+  console.log(\`Server running on port \${PORT}\`);
+});
+
+module.exports = app;`;
+
+        document.getElementById('code-frontend').textContent = frontendCode;
+        document.getElementById('code-server').textContent = serverCode;
+        hljs.highlightAll();
+    </script>
+</body>
+</html>
