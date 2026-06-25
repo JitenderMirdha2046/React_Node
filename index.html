@@ -145,26 +145,10 @@
 <body>
     <div class="header">
         <h1>deployy</h1>
-        <p>CRUD Application — Code Viewer</p>
+        <p>Job Portal — Spring Boot CRUD Application</p>
     </div>
 
-    <div class="container">
-        <div class="file-section">
-            <div class="file-header">
-                <span class="file-name">frontend.html</span>
-                <span class="lang-badge">HTML / JSX</span>
-            </div>
-            <pre><code class="language-html" id="code-frontend"></code></pre>
-        </div>
-
-        <div class="file-section">
-            <div class="file-header">
-                <span class="file-name">server.js</span>
-                <span class="lang-badge">JavaScript</span>
-            </div>
-            <pre><code class="language-javascript" id="code-server"></code></pre>
-        </div>
-    </div>
+    <div class="container" id="file-sections"></div>
 
     <div class="footer">
         Built with &#9829; &mdash; <a href="https://wbt-eta.vercel.app/" target="_blank">wbt-eta.vercel.app</a>
@@ -172,246 +156,663 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script>
-        const frontendCode = `import { useState, useEffect } from "react";
-import axios from "axios";
+        const files = [
+            { name: "pom.xml", lang: "XML", code: `<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.0</version>
+    </parent>
+    <groupId>com.jobportal</groupId>
+    <artifactId>JobPortal</artifactId>
+    <version>1.0.0</version>
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>` },
+            { name: "application.properties", lang: "Properties", code: `server.port=8081
 
-const url = "/employee";
+spring.datasource.url=jdbc:mysql://localhost:3306/job_portal
+spring.datasource.username=admin
+spring.datasource.password=admin123
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
-function App() {
-  const [emp, setEmp] = useState({ no: 0, name: "", address: "" });
-  const [empList, setEmpList] = useState([]);
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true` },
+            { name: "JobPortalApplication.java", lang: "Java", code: `package com.jobportal;
 
-  useEffect(() => {
-    loadData();
-  }, []);
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-  const loadData = () => {
-    axios.get(url).then((result) => {
-      if (result.data.success) setEmpList(result.data.data);
-    });
-  };
+@SpringBootApplication
+public class JobPortalApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(JobPortalApplication.class, args);
+    }
+}` },
+            { name: "enums/IndustryType.java", lang: "Java", code: `package com.jobportal.enums;
 
-  const onTextChange = (e) => {
-    setEmp({ ...emp, [e.target.name]: e.target.value });
-  };
+public enum IndustryType {
+    EDUCATION,
+    PHARMACEUTICAL,
+    HOSPITALITY,
+    INFORMATION_TECHNOLOGY,
+    BANKING,
+    HEALTHCARE
+}` },
+            { name: "enums/JobType.java", lang: "Java", code: `package com.jobportal.enums;
 
-  const AddRecord = () => {
-    axios.post(url, emp).then((result) => {
-      if (result.data.success) {
-        setEmp({ no: 0, name: "", address: "" });
-        loadData();
-      }
-    });
-  };
+public enum JobType {
+    FULL_TIME,
+    PART_TIME,
+    CONTRACT
+}` },
+            { name: "enums/JobStatus.java", lang: "Java", code: `package com.jobportal.enums;
 
-  const UpdateRecord = () => {
-    axios.put(\`\${url}/\${emp.no}\`, emp).then((result) => {
-      if (result.data.success) {
-        setEmp({ no: 0, name: "", address: "" });
-        loadData();
-      }
-    });
-  };
+public enum JobStatus {
+    AVAILABLE,
+    UNAVAILABLE
+}` },
+            { name: "entity/Company.java", lang: "Java", code: `package com.jobportal.entity;
 
-  const edit = (e) => {
-    setEmp({ no: e.no, name: e.name, address: e.address });
-  };
+import com.jobportal.enums.IndustryType;
+import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
-  const deleteRecord = (id) => {
-    axios.delete(\`\${url}/\${id}\`).then((result) => {
-      if (result.data.success) {
-        alert("Record Deleted");
-        loadData();
-      } else {
-        alert("Delete Failed");
-      }
-    });
-  };
+@Entity
+@Table(name = "companies")
+public class Company {
 
-  return (
-    <>
-      <div className="container mt-4">
-        <h1 className="text-center mb-4">Employee Management</h1>
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-        <div className="row mb-3">
-          <div className="col-md-6 offset-md-3">
-            <div className="mb-3">
-              <label className="form-label">Name</label>
-              <input
-                className="form-control"
-                type="text"
-                value={emp.name}
-                name="name"
-                onChange={onTextChange}
-              />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Address</label>
-              <input
-                className="form-control"
-                type="text"
-                value={emp.address}
-                name="address"
-                onChange={onTextChange}
-              />
-            </div>
-            <div className="d-flex gap-2">
-              <button className="btn btn-primary" onClick={AddRecord}>
-                Add Record
-              </button>
-              <button className="btn btn-success" onClick={UpdateRecord}>
-                Update Record
-              </button>
-            </div>
-          </div>
-        </div>
+    @Column(unique = true)
+    private String name;
 
-        <hr />
+    @Column(unique = true)
+    private String email;
 
-        <div className="table-responsive">
-          <table className="table table-bordered text-center">
-            <thead className="table-dark">
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Address</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {empList.map((e) => (
-                <tr key={e.no}>
-                  <td>{e.no}</td>
-                  <td>{e.name}</td>
-                  <td>{e.address}</td>
-                  <td>
-                    <button
-                      className="btn btn-warning btn-sm me-2"
-                      onClick={() => edit(e)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() => deleteRecord(e.no)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </>
-  );
-}
+    private String location;
 
-export default App;`;
+    @Enumerated(EnumType.STRING)
+    private IndustryType industry;
 
-        
-const serverCode = `const express = require("express");
-const cors = require("cors");
-const mysql2 = require("mysql2");
+    private LocalDate createdOn;
 
-const app = express();
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
+    private List<Job> jobs = new ArrayList<>();
 
-app.use(cors());
-app.use(express.json());
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
+    public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
+    public IndustryType getIndustry() { return industry; }
+    public void setIndustry(IndustryType industry) { this.industry = industry; }
+    public LocalDate getCreatedOn() { return createdOn; }
+    public void setCreatedOn(LocalDate createdOn) { this.createdOn = createdOn; }
+    public List<Job> getJobs() { return jobs; }
+    public void setJobs(List<Job> jobs) { this.jobs = jobs; }
+}` },
+            { name: "entity/Job.java", lang: "Java", code: `package com.jobportal.entity;
 
-const mydb = {
-    host: "localhost",
-    port: "3306",
-    user: "root",
-    password: "root123",
-    database: "iacsd"
-};
+import com.jobportal.enums.JobStatus;
+import com.jobportal.enums.JobType;
+import jakarta.persistence.*;
+import java.time.LocalDate;
 
-const connection = mysql2.createConnection(mydb);
+@Entity
+@Table(name = "jobs")
+public class Job {
 
-connection.connect((err) => {
-    if (err) {
-        console.log("Database connection failed", err);
-        return;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String title;
+
+    @Column(nullable = false)
+    private String description;
+
+    @Column(nullable = false)
+    private Double salary;
+
+    @Column(nullable = false)
+    private String location;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private JobType jobType;
+
+    @Column(nullable = false)
+    private LocalDate postedDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private JobStatus status;
+
+    @ManyToOne
+    @JoinColumn(name = "company_id", nullable = false)
+    private Company company;
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+    public Double getSalary() { return salary; }
+    public void setSalary(Double salary) { this.salary = salary; }
+    public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
+    public JobType getJobType() { return jobType; }
+    public void setJobType(JobType jobType) { this.jobType = jobType; }
+    public LocalDate getPostedDate() { return postedDate; }
+    public void setPostedDate(LocalDate postedDate) { this.postedDate = postedDate; }
+    public JobStatus getStatus() { return status; }
+    public void setStatus(JobStatus status) { this.status = status; }
+    public Company getCompany() { return company; }
+    public void setCompany(Company company) { this.company = company; }
+}` },
+            { name: "dto/JobRequestDto.java", lang: "Java", code: `package com.jobportal.dto;
+
+import com.jobportal.enums.JobType;
+
+public class JobRequestDto {
+
+    private Long companyId;
+    private String title;
+    private String description;
+    private Double salary;
+    private String location;
+    private JobType jobType;
+
+    public Long getCompanyId() { return companyId; }
+    public void setCompanyId(Long companyId) { this.companyId = companyId; }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+    public Double getSalary() { return salary; }
+    public void setSalary(Double salary) { this.salary = salary; }
+    public String getLocation() { return location; }
+    public void setLocation(String location) { this.location = location; }
+    public JobType getJobType() { return jobType; }
+    public void setJobType(JobType jobType) { this.jobType = jobType; }
+}` },
+            { name: "dto/SalaryUpdateDto.java", lang: "Java", code: `package com.jobportal.dto;
+
+public class SalaryUpdateDto {
+
+    private Long companyId;
+    private String jobTitle;
+    private Double salary;
+
+    public Long getCompanyId() { return companyId; }
+    public void setCompanyId(Long companyId) { this.companyId = companyId; }
+    public String getJobTitle() { return jobTitle; }
+    public void setJobTitle(String jobTitle) { this.jobTitle = jobTitle; }
+    public Double getSalary() { return salary; }
+    public void setSalary(Double salary) { this.salary = salary; }
+}` },
+            { name: "dto/JobStatusDto.java", lang: "Java", code: `package com.jobportal.dto;
+
+public class JobStatusDto {
+
+    private String companyName;
+    private String jobTitle;
+
+    public String getCompanyName() { return companyName; }
+    public void setCompanyName(String companyName) { this.companyName = companyName; }
+    public String getJobTitle() { return jobTitle; }
+    public void setJobTitle(String jobTitle) { this.jobTitle = jobTitle; }
+}` },
+            { name: "repository/CompanyRepository.java", lang: "Java", code: `package com.jobportal.repository;
+
+import com.jobportal.entity.Company;
+import com.jobportal.enums.IndustryType;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface CompanyRepository extends JpaRepository<Company, Long> {
+
+    List<Company> findByIndustryAndLocation(IndustryType industry, String location);
+
+    Optional<Company> findByName(String name);
+}` },
+            { name: "repository/JobRepository.java", lang: "Java", code: `package com.jobportal.repository;
+
+import com.jobportal.entity.Job;
+import com.jobportal.enums.IndustryType;
+import com.jobportal.enums.JobType;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import java.util.List;
+import java.util.Optional;
+
+@Repository
+public interface JobRepository extends JpaRepository<Job, Long> {
+
+    List<Job> findByLocation(String location);
+
+    List<Job> findByCompanyIndustryAndSalaryGreaterThanEqual(IndustryType industry, Double salary);
+
+    Optional<Job> findByCompanyIdAndTitle(Long companyId, String title);
+
+    Optional<Job> findByCompanyNameAndTitle(String companyName, String title);
+
+    long deleteByCompanyNameAndJobType(String companyName, JobType jobType);
+}` },
+            { name: "exception/ResourceNotFoundException.java", lang: "Java", code: `package com.jobportal.exception;
+
+public class ResourceNotFoundException extends RuntimeException {
+
+    public ResourceNotFoundException(String message) {
+        super(message);
+    }
+}` },
+            { name: "exception/ErrorResponse.java", lang: "Java", code: `package com.jobportal.exception;
+
+import java.time.LocalDateTime;
+
+public class ErrorResponse {
+
+    private LocalDateTime timestamp;
+    private int status;
+    private String error;
+    private String message;
+
+    public ErrorResponse(LocalDateTime timestamp, int status, String error, String message) {
+        this.timestamp = timestamp;
+        this.status = status;
+        this.error = error;
+        this.message = message;
     }
 
-    console.log("Connected to MySQL");
-    initializeDb();
-});
+    public LocalDateTime getTimestamp() { return timestamp; }
+    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
+    public int getStatus() { return status; }
+    public void setStatus(int status) { this.status = status; }
+    public String getError() { return error; }
+    public void setError(String error) { this.error = error; }
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
+}` },
+            { name: "exception/GlobalExceptionHandler.java", lang: "Java", code: `package com.jobportal.exception;
 
-function executeQuery(query,value,response){
-    connection.query(query,value,(err,result)=>{
-        if(err){
-            return response.status(500).json({
-                success:false,
-                error:err.message
-            });
-        }
-        response.json({
-            success:true,
-            data:result
-        })
-    })
-}
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import java.time.LocalDateTime;
 
+@RestControllerAdvice
+public class GlobalExceptionHandler {
 
-function initializeDb(){
-    connection.query(\`CREATE TABLE IF NOT EXISTS emp(
-            no INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(50),
-            address VARCHAR(100)
-        )\`,
-        (err)=>{
-            if(err){
-                console.log(err);
-                return;
-            }
-            console.log("Table created or already exists");
-        }
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(), 404, "NOT_FOUND", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
 
-    )
-}
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleException(Exception ex) {
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(), 500, "INTERNAL_SERVER_ERROR", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+}` },
+            { name: "service/CompanyService.java", lang: "Java", code: `package com.jobportal.service;
 
+import com.jobportal.entity.Company;
+import com.jobportal.enums.IndustryType;
+import java.util.List;
 
-app.get("/employee",(req,res)=>{
-    executeQuery("select * from emp",[],res);
-});
+public interface CompanyService {
 
+    List<Company> getCompanies(IndustryType industry, String location);
+}` },
+            { name: "service/CompanyServiceImpl.java", lang: "Java", code: `package com.jobportal.service;
 
-app.post("/employee",(req,res)=>{
-    const {name,address}=req.body;
-    executeQuery("Insert into emp(name,address) values (?,?)",
-    [name,address],
-    res
-    );
-});
+import com.jobportal.entity.Company;
+import com.jobportal.enums.IndustryType;
+import com.jobportal.repository.CompanyRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.util.List;
 
-app.put("/employee/:no",(req,res)=>{
-    const {name,address}=req.body;
-    executeQuery(
-    "update emp set name=?,address=? where no=?",
-    [name,address,req.params.no],
-    res
-    );
-})
+@Service
+public class CompanyServiceImpl implements CompanyService {
 
+    @Autowired
+    private CompanyRepository companyRepo;
 
-app.delete("/employee/:no",(req,res)=>{
+    @Override
+    public List<Company> getCompanies(IndustryType industry, String location) {
+        return companyRepo.findByIndustryAndLocation(industry, location);
+    }
+}` },
+            { name: "service/JobService.java", lang: "Java", code: `package com.jobportal.service;
 
-    executeQuery("delete from emp where no=?",
-        [req.params.no],
-        res
-    );
-});
+import com.jobportal.entity.Job;
+import com.jobportal.enums.IndustryType;
+import com.jobportal.enums.JobType;
+import com.jobportal.dto.JobRequestDto;
+import com.jobportal.dto.SalaryUpdateDto;
+import com.jobportal.dto.JobStatusDto;
+import java.util.List;
 
+public interface JobService {
 
-app.listen(5000, () => {
-    console.log("Server running on port 5000");
-});`;
+    Job createJob(JobRequestDto dto);
 
-        document.getElementById('code-frontend').textContent = frontendCode;
-        document.getElementById('code-server').textContent = serverCode;
+    List<Job> getJobsByLocation(String location);
+
+    void deleteJobs(String companyName, JobType jobType);
+
+    Job updateSalary(SalaryUpdateDto dto);
+
+    List<Job> getJobsByIndustrySalary(IndustryType industry, Double salary);
+
+    Job updateJobStatus(JobStatusDto dto);
+}` },
+            { name: "service/JobServiceImpl.java", lang: "Java", code: `package com.jobportal.service;
+
+import com.jobportal.entity.Company;
+import com.jobportal.entity.Job;
+import com.jobportal.enums.IndustryType;
+import com.jobportal.enums.JobStatus;
+import com.jobportal.enums.JobType;
+import com.jobportal.exception.ResourceNotFoundException;
+import com.jobportal.repository.CompanyRepository;
+import com.jobportal.repository.JobRepository;
+import com.jobportal.dto.JobRequestDto;
+import com.jobportal.dto.SalaryUpdateDto;
+import com.jobportal.dto.JobStatusDto;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import java.time.LocalDate;
+import java.util.List;
+
+@Service
+public class JobServiceImpl implements JobService {
+
+    @Autowired
+    private JobRepository jobRepo;
+
+    @Autowired
+    private CompanyRepository companyRepo;
+
+    @Override
+    public Job createJob(JobRequestDto dto) {
+        Company company = companyRepo.findById(dto.getCompanyId())
+                .orElseThrow(() -> new ResourceNotFoundException("Company Not Found"));
+
+        Job job = new Job();
+        job.setTitle(dto.getTitle());
+        job.setDescription(dto.getDescription());
+        job.setSalary(dto.getSalary());
+        job.setLocation(dto.getLocation());
+        job.setJobType(dto.getJobType());
+        job.setPostedDate(LocalDate.now());
+        job.setStatus(JobStatus.AVAILABLE);
+        job.setCompany(company);
+
+        return jobRepo.save(job);
+    }
+
+    @Override
+    public List<Job> getJobsByLocation(String location) {
+        return jobRepo.findByLocation(location);
+    }
+
+    @Override
+    public void deleteJobs(String companyName, JobType jobType) {
+        jobRepo.deleteByCompanyNameAndJobType(companyName, jobType);
+    }
+
+    @Override
+    public Job updateSalary(SalaryUpdateDto dto) {
+        Job job = jobRepo.findByCompanyIdAndTitle(dto.getCompanyId(), dto.getJobTitle())
+                .orElseThrow(() -> new ResourceNotFoundException("Job Not Found"));
+
+        job.setSalary(dto.getSalary());
+        return jobRepo.save(job);
+    }
+
+    @Override
+    public List<Job> getJobsByIndustrySalary(IndustryType industry, Double salary) {
+        return jobRepo.findByCompanyIndustryAndSalaryGreaterThanEqual(industry, salary);
+    }
+
+    @Override
+    public Job updateJobStatus(JobStatusDto dto) {
+        Job job = jobRepo.findByCompanyNameAndTitle(dto.getCompanyName(), dto.getJobTitle())
+                .orElseThrow(() -> new ResourceNotFoundException("Job Not Found"));
+
+        job.setStatus(JobStatus.UNAVAILABLE);
+        return jobRepo.save(job);
+    }
+}` },
+            { name: "controller/CompanyController.java", lang: "Java", code: `package com.jobportal.controller;
+
+import com.jobportal.entity.Company;
+import com.jobportal.enums.IndustryType;
+import com.jobportal.service.CompanyService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/companies")
+public class CompanyController {
+
+    @Autowired
+    private CompanyService service;
+
+    @GetMapping
+    public ResponseEntity<List<Company>> getCompanies(
+            @RequestParam IndustryType industry,
+            @RequestParam String location) {
+
+        return ResponseEntity.ok(service.getCompanies(industry, location));
+    }
+}` },
+            { name: "controller/JobController.java", lang: "Java", code: `package com.jobportal.controller;
+
+import com.jobportal.entity.Job;
+import com.jobportal.enums.IndustryType;
+import com.jobportal.enums.JobType;
+import com.jobportal.service.JobService;
+import com.jobportal.dto.JobRequestDto;
+import com.jobportal.dto.SalaryUpdateDto;
+import com.jobportal.dto.JobStatusDto;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/jobs")
+public class JobController {
+
+    @Autowired
+    private JobService service;
+
+    @PostMapping
+    public ResponseEntity<Job> createJob(@RequestBody JobRequestDto dto) {
+        return new ResponseEntity<>(service.createJob(dto), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/location/{location}")
+    public ResponseEntity<List<Job>> getJobsByLocation(@PathVariable String location) {
+        return ResponseEntity.ok(service.getJobsByLocation(location));
+    }
+
+    @DeleteMapping
+    public ResponseEntity<String> deleteJobs(
+            @RequestParam String companyName,
+            @RequestParam JobType jobType) {
+
+        service.deleteJobs(companyName, jobType);
+        return ResponseEntity.ok("Deleted Successfully");
+    }
+
+    @PutMapping("/salary")
+    public ResponseEntity<Job> updateSalary(@RequestBody SalaryUpdateDto dto) {
+        return ResponseEntity.ok(service.updateSalary(dto));
+    }
+
+    @GetMapping("/industry")
+    public ResponseEntity<List<Job>> getJobs(
+            @RequestParam IndustryType industry,
+            @RequestParam Double salary) {
+
+        return ResponseEntity.ok(service.getJobsByIndustrySalary(industry, salary));
+    }
+
+    @PutMapping("/status")
+    public ResponseEntity<Job> updateStatus(@RequestBody JobStatusDto dto) {
+        return ResponseEntity.ok(service.updateJobStatus(dto));
+    }
+}` },
+            { name: "MySQL Sample Data", lang: "SQL", code: `INSERT INTO companies (name, email, location, industry, created_on) VALUES
+
+('TCS', 'tcs@gmail.com', 'Pune', 'INFORMATION_TECHNOLOGY', CURDATE()),
+
+('Infosys', 'infosys@gmail.com', 'Bangalore', 'INFORMATION_TECHNOLOGY', CURDATE()),
+
+('HDFC Bank', 'hdfc@gmail.com', 'Mumbai', 'BANKING', CURDATE()),
+
+('Apollo Hospitals', 'apollo@gmail.com', 'Delhi', 'HEALTHCARE', CURDATE());` },
+            { name: "Postman Testing Endpoints", lang: "Text", code: `1. Get Companies
+   GET /api/companies?industry=BANKING&location=Mumbai
+
+2. Create Job
+   POST /api/jobs
+   Body (JSON):
+   {
+     "companyId": 1,
+     "title": "Java Developer",
+     "description": "Spring Boot Developer",
+     "salary": 80000,
+     "location": "Pune",
+     "jobType": "FULL_TIME"
+   }
+
+3. Get Jobs By Location
+   GET /api/jobs/location/Pune
+
+4. Delete Jobs
+   DELETE /api/jobs?companyName=TCS&jobType=CONTRACT
+
+5. Update Salary
+   PUT /api/jobs/salary
+   Body (JSON):
+   {
+     "companyId": 1,
+     "jobTitle": "Java Developer",
+     "salary": 120000
+   }
+
+6. Industry + Minimum Salary
+   GET /api/jobs/industry?industry=INFORMATION_TECHNOLOGY&salary=50000
+
+7. Update Status
+   PUT /api/jobs/status
+   Body (JSON):
+   {
+     "companyName": "TCS",
+     "jobTitle": "Java Developer"
+   }` }
+        ];
+
+        const container = document.getElementById('file-sections');
+
+        files.forEach(f => {
+            const section = document.createElement('div');
+            section.className = 'file-section';
+
+            const header = document.createElement('div');
+            header.className = 'file-header';
+
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'file-name';
+            nameSpan.textContent = f.name;
+
+            const badge = document.createElement('span');
+            badge.className = 'lang-badge';
+            badge.textContent = f.lang;
+
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-btn';
+            copyBtn.textContent = 'Copy';
+            copyBtn.onclick = () => {
+                navigator.clipboard.writeText(f.code).then(() => {
+                    copyBtn.textContent = 'Copied!';
+                    copyBtn.classList.add('copied');
+                    setTimeout(() => {
+                        copyBtn.textContent = 'Copy';
+                        copyBtn.classList.remove('copied');
+                    }, 2000);
+                });
+            };
+
+            header.appendChild(nameSpan);
+            header.appendChild(badge);
+            header.appendChild(copyBtn);
+
+            const pre = document.createElement('pre');
+            const code = document.createElement('code');
+            code.className = f.lang === 'XML' ? 'language-xml' : f.lang === 'SQL' ? 'language-sql' : f.lang === 'Properties' ? 'language-ini' : 'language-java';
+            code.textContent = f.code;
+
+            pre.appendChild(code);
+            section.appendChild(header);
+            section.appendChild(pre);
+            container.appendChild(section);
+        });
+
         hljs.highlightAll();
     </script>
 </body>
