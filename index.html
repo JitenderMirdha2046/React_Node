@@ -3,817 +3,928 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>deployy - Code Viewer</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <title>Student Course Management - Full Code</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0f0f0f;
-            color: #e0e0e0;
-            min-height: 100vh;
-        }
-
-        .header {
-            text-align: center;
-            padding: 60px 20px 40px;
-            background: linear-gradient(180deg, #1a1a2e 0%, #0f0f0f 100%);
-        }
-
-        .header h1 {
-            font-size: 72px;
-            font-weight: 800;
-            letter-spacing: -2px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            font-size: 18px;
-            color: #888;
-            font-weight: 300;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 40px 20px 80px;
-        }
-
-        .file-section {
-            margin-bottom: 40px;
-        }
-
-        .file-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 20px;
-            background: #1e1e2e;
-            border-radius: 8px 8px 0 0;
-            border: 1px solid #2d2d3d;
-            border-bottom: none;
-        }
-
-        .file-header .file-name {
-            font-size: 14px;
-            font-weight: 600;
-            color: #a0a0c0;
-        }
-
-        .file-header .lang-badge {
-            font-size: 11px;
-            padding: 4px 10px;
-            border-radius: 4px;
-            background: #2d2d3d;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        pre {
-            margin: 0 !important;
-            border-radius: 0 0 8px 8px !important;
-            border: 1px solid #2d2d3d;
-            border-top: none;
-        }
-
-        pre code {
-            font-size: 13px;
-            line-height: 1.6;
-            font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
-        }
-
-        .copy-btn {
-            background: none;
-            border: 1px solid #2d2d3d;
-            color: #888;
-            padding: 4px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.2s;
-        }
-
-        .copy-btn:hover {
-            background: #2d2d3d;
-            color: #fff;
-        }
-
-        .copy-btn.copied {
-            background: #2ea043;
-            color: #fff;
-            border-color: #2ea043;
-        }
-
-        .footer {
-            text-align: center;
-            padding: 40px 20px;
-            color: #555;
-            font-size: 13px;
-        }
-
-        .footer a {
-            color: #667eea;
-            text-decoration: none;
-        }
-
-        .footer a:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 600px) {
-            .header h1 {
-                font-size: 48px;
-            }
-            .header {
-                padding: 40px 20px 30px;
-            }
-            pre code {
-                font-size: 12px;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f5f5f5; color: #333; padding: 20px; }
+        h1 { text-align: center; margin-bottom: 5px; color: #2c3e50; }
+        .subtitle { text-align: center; margin-bottom: 25px; color: #7f8c8d; font-size: 14px; }
+        .file-card { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; overflow: hidden; }
+        .file-header { background: #2c3e50; color: #fff; padding: 10px 18px; font-weight: 600; font-size: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .file-header .path { font-weight: 400; font-size: 12px; opacity: 0.8; }
+        .file-body { padding: 0; overflow-x: auto; }
+        pre { margin: 0; padding: 16px 18px; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; line-height: 1.6; background: #fafafa; color: #333; }
+        .keyword { color: #0033b3; font-weight: 600; }
+        .annotation { color: #808080; }
+        .string { color: #067d17; }
+        .comment { color: #8c8c8c; font-style: italic; }
+        .type { color: #000080; }
+        .method { color: #6a3e9c; }
+        .top-bar { background: #1a1a2e; color: #eee; padding: 12px 20px; border-radius: 8px 8px 0 0; font-weight: 500; }
+        .summary { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px; }
+        .summary-item { background: #fff; border-radius: 6px; padding: 10px 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); font-size: 13px; }
+        .summary-item strong { color: #2c3e50; }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>deployy</h1>
-        <p>Job Portal — Spring Boot CRUD Application</p>
+
+<h1>Student Course Management System</h1>
+<p class="subtitle">Spring Boot - JPA - MySQL - Full CRUD with Validation</p>
+
+<div class="summary">
+    <div class="summary-item"><strong>Entities:</strong> Student, Course</div>
+    <div class="summary-item"><strong>DTOs:</strong> 7</div>
+    <div class="summary-item"><strong>Enums:</strong> 1 (CourseEnum)</div>
+    <div class="summary-item"><strong>Repositories:</strong> 2</div>
+    <div class="summary-item"><strong>Services:</strong> 2</div>
+    <div class="summary-item"><strong>Controllers:</strong> 2</div>
+    <div class="summary-item"><strong>Exceptions:</strong> 3</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ENTITIES -->
+<!-- ============================================================ -->
+
+<div class="file-card">
+    <div class="file-header">
+        <span>Student.java</span>
+        <span class="path">com/jobportal/entity</span>
     </div>
+    <div class="file-body">
+<pre><span class="keyword">package</span> com.jobportal.entity;
 
-    <div class="container" id="file-sections"></div>
+<span class="keyword">import</span> com.jobportal.enums.CourseEnum;
+<span class="keyword">import</span> jakarta.persistence.*;
+<span class="keyword">import</span> lombok.*;
+<span class="keyword">import</span> java.time.LocalDate;
+<span class="keyword">import</span> java.util.ArrayList;
+<span class="keyword">import</span> java.util.List;
 
-    <div class="footer">
-        Built with &#9829; &mdash; <a href="https://wbt-eta.vercel.app/" target="_blank">wbt-eta.vercel.app</a>
+<span class="annotation">@Entity</span>
+<span class="annotation">@Table</span>(name = <span class="string">"students"</span>)
+<span class="annotation">@Data</span> <span class="annotation">@NoArgsConstructor</span> <span class="annotation">@AllArgsConstructor</span> <span class="annotation">@Builder</span>
+<span class="keyword">public class</span> <span class="type">Student</span> {
+
+    <span class="annotation">@Id</span>
+    <span class="annotation">@GeneratedValue</span>(strategy = GenerationType.IDENTITY)
+    <span class="keyword">private</span> Long id;
+
+    <span class="annotation">@Column</span>(nullable = <span class="keyword">false</span>, length = <span class="string">100</span>)
+    <span class="keyword">private</span> String name;
+
+    <span class="annotation">@Column</span>(nullable = <span class="keyword">false</span>, unique = <span class="keyword">true</span>, length = <span class="string">100</span>)
+    <span class="keyword">private</span> String email;
+
+    <span class="annotation">@Column</span>(length = <span class="string">15</span>)
+    <span class="keyword">private</span> String phone;
+
+    <span class="annotation">@Column</span>(name = <span class="string">"date_of_birth"</span>)
+    <span class="keyword">private</span> LocalDate dateOfBirth;
+
+    <span class="annotation">@Enumerated</span>(EnumType.STRING)
+    <span class="annotation">@Column</span>(name = <span class="string">"course"</span>, nullable = <span class="keyword">false</span>, length = <span class="string">20</span>)
+    <span class="keyword">private</span> CourseEnum course;
+
+    <span class="annotation">@Column</span>(name = <span class="string">"enrollment_date"</span>, nullable = <span class="keyword">false</span>, updatable = <span class="keyword">false</span>)
+    <span class="keyword">private</span> LocalDate enrollmentDate;
+
+    <span class="annotation">@OneToMany</span>(mappedBy = <span class="string">"student"</span>, cascade = CascadeType.ALL, orphanRemoval = <span class="keyword">true</span>, fetch = FetchType.LAZY)
+    <span class="annotation">@Builder.Default</span>
+    <span class="keyword">private</span> List&lt;Course&gt; courses = <span class="keyword">new</span> ArrayList&lt;&gt;();
+
+    <span class="annotation">@PrePersist</span>
+    <span class="keyword">protected void</span> <span class="method">onCreate</span>() {
+        <span class="keyword">if</span> (enrollmentDate == <span class="keyword">null</span>) {
+            enrollmentDate = LocalDate.now();
+        }
+    }
+
+    <span class="keyword">public void</span> <span class="method">addCourse</span>(Course course) {
+        courses.add(course);
+        course.setStudent(<span class="keyword">this</span>);
+    }
+
+    <span class="keyword">public void</span> <span class="method">removeCourse</span>(Course course) {
+        courses.remove(course);
+        course.setStudent(<span class="keyword">null</span>);
+    }
+}
+</pre>
     </div>
+</div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script>
-        const files = [
-            { name: "pom.xml", lang: "XML", code: `<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.0</version>
-    </parent>
-    <groupId>com.jobportal</groupId>
-    <artifactId>JobPortal</artifactId>
-    <version>1.0.0</version>
-    <properties>
-        <java.version>17</java.version>
-    </properties>
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-    </dependencies>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
-</project>` },
-            { name: "application.properties", lang: "Properties", code: `server.port=8081
+<div class="file-card">
+    <div class="file-header">
+        <span>Course.java</span>
+        <span class="path">com/jobportal/entity</span>
+    </div>
+    <div class="file-body">
+<pre><span class="keyword">package</span> com.jobportal.entity;
 
-spring.datasource.url=jdbc:mysql://localhost:3306/job_portal
-spring.datasource.username=admin
-spring.datasource.password=admin123
-spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+<span class="keyword">import</span> jakarta.persistence.*;
+<span class="keyword">import</span> lombok.*;
+<span class="keyword">import</span> java.time.LocalDate;
 
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true` },
-            { name: "JobPortalApplication.java", lang: "Java", code: `package com.jobportal;
+<span class="annotation">@Entity</span>
+<span class="annotation">@Table</span>(name = <span class="string">"courses"</span>)
+<span class="annotation">@Data</span> <span class="annotation">@NoArgsConstructor</span> <span class="annotation">@AllArgsConstructor</span> <span class="annotation">@Builder</span>
+<span class="keyword">public class</span> <span class="type">Course</span> {
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+    <span class="annotation">@Id</span>
+    <span class="annotation">@GeneratedValue</span>(strategy = GenerationType.IDENTITY)
+    <span class="keyword">private</span> Long id;
 
-@SpringBootApplication
-public class JobPortalApplication {
-    public static void main(String[] args) {
+    <span class="annotation">@Column</span>(nullable = <span class="keyword">false</span>, length = <span class="string">100</span>)
+    <span class="keyword">private</span> String title;
+
+    <span class="annotation">@Column</span>(nullable = <span class="keyword">false</span>, unique = <span class="keyword">true</span>, length = <span class="string">20</span>)
+    <span class="keyword">private</span> String code;
+
+    <span class="annotation">@Column</span>(nullable = <span class="keyword">false</span>)
+    <span class="keyword">private</span> Integer credits;
+
+    <span class="annotation">@Column</span>(name = <span class="string">"start_date"</span>)
+    <span class="keyword">private</span> LocalDate startDate;
+
+    <span class="annotation">@Column</span>(name = <span class="string">"end_date"</span>)
+    <span class="keyword">private</span> LocalDate endDate;
+
+    <span class="annotation">@ManyToOne</span>(fetch = FetchType.LAZY)
+    <span class="annotation">@JoinColumn</span>(name = <span class="string">"student_id"</span>, nullable = <span class="keyword">false</span>)
+    <span class="keyword">private</span> Student student;
+}
+</pre>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ENUMS -->
+<!-- ============================================================ -->
+
+<div class="file-card">
+    <div class="file-header">
+        <span>CourseEnum.java</span>
+        <span class="path">com/jobportal/enums</span>
+    </div>
+    <div class="file-body">
+<pre><span class="keyword">package</span> com.jobportal.enums;
+
+<span class="keyword">public enum</span> <span class="type">CourseEnum</span> {
+    SCIENCE,
+    ARTS,
+    COMMERCE,
+    ENGINEERING,
+    MEDICAL,
+    LAW,
+    MANAGEMENT
+}
+</pre>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- DTOs -->
+<!-- ============================================================ -->
+
+<div class="file-card">
+    <div class="file-header">
+        <span>StudentRequest.java</span>
+        <span class="path">com/jobportal/dto</span>
+    </div>
+    <div class="file-body">
+<pre><span class="keyword">package</span> com.jobportal.dto;
+
+<span class="keyword">import</span> com.jobportal.enums.CourseEnum;
+<span class="keyword">import</span> jakarta.validation.constraints.*;
+<span class="keyword">import</span> lombok.*;
+<span class="keyword">import</span> java.time.LocalDate;
+
+<span class="annotation">@Data</span> <span class="annotation">@NoArgsConstructor</span> <span class="annotation">@AllArgsConstructor</span> <span class="annotation">@Builder</span>
+<span class="keyword">public class</span> <span class="type">StudentRequest</span> {
+
+    <span class="annotation">@NotBlank</span>(message = <span class="string">"Name is required"</span>)
+    <span class="annotation">@Size</span>(min = <span class="string">2</span>, max = <span class="string">100</span>, message = <span class="string">"Name must be 2-100 characters"</span>)
+    <span class="keyword">private</span> String name;
+
+    <span class="annotation">@NotBlank</span>(message = <span class="string">"Email is required"</span>)
+    <span class="annotation">@Email</span>(message = <span class="string">"Invalid email format"</span>)
+    <span class="keyword">private</span> String email;
+
+    <span class="annotation">@Pattern</span>(regexp = <span class="string">"^\\+?[1-9]\\d{9,14}$"</span>, message = <span class="string">"Invalid phone number"</span>)
+    <span class="keyword">private</span> String phone;
+
+    <span class="annotation">@Past</span>(message = <span class="string">"Date of birth must be in the past"</span>)
+    <span class="keyword">private</span> LocalDate dateOfBirth;
+
+    <span class="annotation">@NotNull</span>(message = <span class="string">"Course is required"</span>)
+    <span class="keyword">private</span> CourseEnum course;
+}
+</pre>
+    </div>
+</div>
+
+<div class="file-card">
+    <div class="file-header">
+        <span>StudentResponse.java</span>
+        <span class="path">com/jobportal/dto</span>
+    </div>
+    <div class="file-body">
+<pre><span class="keyword">package</span> com.jobportal.dto;
+
+<span class="keyword">import</span> com.jobportal.enums.CourseEnum;
+<span class="keyword">import</span> lombok.*;
+<span class="keyword">import</span> java.time.LocalDate;
+<span class="keyword">import</span> java.util.List;
+
+<span class="annotation">@Data</span> <span class="annotation">@NoArgsConstructor</span> <span class="annotation">@AllArgsConstructor</span> <span class="annotation">@Builder</span>
+<span class="keyword">public class</span> <span class="type">StudentResponse</span> {
+
+    <span class="keyword">private</span> Long id;
+    <span class="keyword">private</span> String name;
+    <span class="keyword">private</span> String email;
+    <span class="keyword">private</span> String phone;
+    <span class="keyword">private</span> LocalDate dateOfBirth;
+    <span class="keyword">private</span> CourseEnum course;
+    <span class="keyword">private</span> LocalDate enrollmentDate;
+    <span class="keyword">private</span> List&lt;CourseDTO&gt; courses;
+
+    <span class="annotation">@Data</span> <span class="annotation">@NoArgsConstructor</span> <span class="annotation">@AllArgsConstructor</span> <span class="annotation">@Builder</span>
+    <span class="keyword">public static class</span> <span class="type">CourseDTO</span> {
+        <span class="keyword">private</span> Long id;
+        <span class="keyword">private</span> String title;
+        <span class="keyword">private</span> String code;
+        <span class="keyword">private</span> Integer credits;
+        <span class="keyword">private</span> LocalDate startDate;
+        <span class="keyword">private</span> LocalDate endDate;
+    }
+}
+</pre>
+    </div>
+</div>
+
+<div class="file-card">
+    <div class="file-header">
+        <span>CourseRequest.java</span>
+        <span class="path">com/jobportal/dto</span>
+    </div>
+    <div class="file-body">
+<pre><span class="keyword">package</span> com.jobportal.dto;
+
+<span class="keyword">import</span> jakarta.validation.constraints.*;
+<span class="keyword">import</span> lombok.*;
+<span class="keyword">import</span> java.time.LocalDate;
+
+<span class="annotation">@Data</span> <span class="annotation">@NoArgsConstructor</span> <span class="annotation">@AllArgsConstructor</span> <span class="annotation">@Builder</span>
+<span class="keyword">public class</span> <span class="type">CourseRequest</span> {
+
+    <span class="annotation">@NotBlank</span>(message = <span class="string">"Course title is required"</span>)
+    <span class="annotation">@Size</span>(min = <span class="string">3</span>, max = <span class="string">100</span>, message = <span class="string">"Title must be 3-100 characters"</span>)
+    <span class="keyword">private</span> String title;
+
+    <span class="annotation">@NotBlank</span>(message = <span class="string">"Course code is required"</span>)
+    <span class="annotation">@Size</span>(min = <span class="string">2</span>, max = <span class="string">20</span>, message = <span class="string">"Code must be 2-20 characters"</span>)
+    <span class="keyword">private</span> String code;
+
+    <span class="annotation">@NotNull</span>(message = <span class="string">"Credits are required"</span>)
+    <span class="annotation">@Min</span>(value = <span class="string">1</span>, message = <span class="string">"Credits must be at least 1"</span>)
+    <span class="annotation">@Max</span>(value = <span class="string">20</span>, message = <span class="string">"Credits must not exceed 20"</span>)
+    <span class="keyword">private</span> Integer credits;
+
+    <span class="annotation">@NotNull</span>(message = <span class="string">"Start date is required"</span>)
+    <span class="keyword">private</span> LocalDate startDate;
+
+    <span class="annotation">@NotNull</span>(message = <span class="string">"End date is required"</span>)
+    <span class="keyword">private</span> LocalDate endDate;
+
+    <span class="annotation">@NotNull</span>(message = <span class="string">"Student ID is required"</span>)
+    <span class="keyword">private</span> Long studentId;
+
+    <span class="annotation">@AssertTrue</span>(message = <span class="string">"End date must be after start date"</span>)
+    <span class="keyword">private boolean</span> <span class="method">isValidDateRange</span>() {
+        <span class="keyword">if</span> (startDate == <span class="keyword">null</span> || endDate == <span class="keyword">null</span>) {
+            <span class="keyword">return true</span>;
+        }
+        <span class="keyword">return</span> endDate.isAfter(startDate);
+    }
+}
+</pre>
+    </div>
+</div>
+
+<div class="file-card">
+    <div class="file-header">
+        <span>CourseResponse.java</span>
+        <span class="path">com/jobportal/dto</span>
+    </div>
+    <div class="file-body">
+<pre><span class="keyword">package</span> com.jobportal.dto;
+
+<span class="keyword">import</span> lombok.*;
+<span class="keyword">import</span> java.time.LocalDate;
+
+<span class="annotation">@Data</span> <span class="annotation">@NoArgsConstructor</span> <span class="annotation">@AllArgsConstructor</span> <span class="annotation">@Builder</span>
+<span class="keyword">public class</span> <span class="type">CourseResponse</span> {
+
+    <span class="keyword">private</span> Long id;
+    <span class="keyword">private</span> String title;
+    <span class="keyword">private</span> String code;
+    <span class="keyword">private</span> Integer credits;
+    <span class="keyword">private</span> LocalDate startDate;
+    <span class="keyword">private</span> LocalDate endDate;
+    <span class="keyword">private</span> Long studentId;
+    <span class="keyword">private</span> String studentName;
+}
+</pre>
+    </div>
+</div>
+
+<div class="file-card">
+    <div class="file-header">
+        <span>ErrorResponse.java</span>
+        <span class="path">com/jobportal/dto</span>
+    </div>
+    <div class="file-body">
+<pre><span class="keyword">package</span> com.jobportal.dto;
+
+<span class="keyword">import</span> lombok.*;
+<span class="keyword">import</span> java.time.LocalDateTime;
+<span class="keyword">import</span> java.util.Map;
+
+<span class="annotation">@Data</span> <span class="annotation">@NoArgsConstructor</span> <span class="annotation">@AllArgsConstructor</span> <span class="annotation">@Builder</span>
+<span class="keyword">public class</span> <span class="type">ErrorResponse</span> {
+
+    <span class="keyword">private</span> LocalDateTime timestamp;
+    <span class="keyword">private</span> <span class="keyword">int</span> status;
+    <span class="keyword">private</span> String error;
+    <span class="keyword">private</span> String message;
+    <span class="keyword">private</span> String path;
+    <span class="keyword">private</span> Map&lt;String, String&gt; fieldErrors;
+}
+</pre>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- REPOSITORIES -->
+<!-- ============================================================ -->
+
+<div class="file-card">
+    <div class="file-header">
+        <span>StudentRepository.java</span>
+        <span class="path">com/jobportal/repository</span>
+    </div>
+    <div class="file-body">
+<pre><span class="keyword">package</span> com.jobportal.repository;
+
+<span class="keyword">import</span> com.jobportal.entity.Student;
+<span class="keyword">import</span> com.jobportal.enums.CourseEnum;
+<span class="keyword">import</span> org.springframework.data.jpa.repository.JpaRepository;
+<span class="keyword">import</span> org.springframework.stereotype.Repository;
+<span class="keyword">import</span> java.util.List;
+<span class="keyword">import</span> java.util.Optional;
+
+<span class="annotation">@Repository</span>
+<span class="keyword">public interface</span> <span class="type">StudentRepository</span> <span class="keyword">extends</span> JpaRepository&lt;Student, Long&gt; {
+    Optional&lt;Student&gt; <span class="method">findByEmail</span>(String email);
+    <span class="keyword">boolean</span> <span class="method">existsByEmail</span>(String email);
+    List&lt;Student&gt; <span class="method">findByCourse</span>(CourseEnum course);
+}
+</pre>
+    </div>
+</div>
+
+<div class="file-card">
+    <div class="file-header">
+        <span>CourseRepository.java</span>
+        <span class="path">com/jobportal/repository</span>
+    </div>
+    <div class="file-body">
+<pre><span class="keyword">package</span> com.jobportal.repository;
+
+<span class="keyword">import</span> com.jobportal.entity.Course;
+<span class="keyword">import</span> org.springframework.data.jpa.repository.JpaRepository;
+<span class="keyword">import</span> org.springframework.stereotype.Repository;
+<span class="keyword">import</span> java.util.List;
+
+<span class="annotation">@Repository</span>
+<span class="keyword">public interface</span> <span class="type">CourseRepository</span> <span class="keyword">extends</span> JpaRepository&lt;Course, Long&gt; {
+    List&lt;Course&gt; <span class="method">findByStudentId</span>(Long studentId);
+    List&lt;Course&gt; <span class="method">findByTitleContainingIgnoreCase</span>(String title);
+    <span class="keyword">boolean</span> <span class="method">existsByCode</span>(String code);
+}
+</pre>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SERVICES -->
+<!-- ============================================================ -->
+
+<div class="file-card">
+    <div class="file-header">
+        <span>StudentService.java</span>
+        <span class="path">com/jobportal/service</span>
+    </div>
+    <div class="file-body">
+<pre><span class="keyword">package</span> com.jobportal.service;
+
+<span class="keyword">import</span> com.jobportal.dto.*;
+<span class="keyword">import</span> com.jobportal.entity.Student;
+<span class="keyword">import</span> com.jobportal.enums.CourseEnum;
+<span class="keyword">import</span> com.jobportal.exception.DuplicateResourceException;
+<span class="keyword">import</span> com.jobportal.exception.ResourceNotFoundException;
+<span class="keyword">import</span> com.jobportal.repository.StudentRepository;
+<span class="keyword">import</span> org.springframework.stereotype.Service;
+<span class="keyword">import</span> org.springframework.transaction.annotation.Transactional;
+<span class="keyword">import</span> java.util.List;
+<span class="keyword">import</span> java.util.stream.Collectors;
+
+<span class="annotation">@Service</span>
+<span class="keyword">public class</span> <span class="type">StudentService</span> {
+
+    <span class="keyword">private final</span> StudentRepository studentRepository;
+
+    <span class="keyword">public</span> <span class="method">StudentService</span>(StudentRepository studentRepository) {
+        <span class="keyword">this</span>.studentRepository = studentRepository;
+    }
+
+    <span class="annotation">@Transactional</span>
+    <span class="keyword">public</span> StudentResponse <span class="method">createStudent</span>(StudentRequest request) {
+        <span class="keyword">if</span> (studentRepository.existsByEmail(request.getEmail())) {
+            <span class="keyword">throw new</span> DuplicateResourceException(<span class="string">"Student already exists with email: "</span> + request.getEmail());
+        }
+
+        Student student = Student.builder()
+                .name(request.getName())
+                .email(request.getEmail())
+                .phone(request.getPhone())
+                .dateOfBirth(request.getDateOfBirth())
+                .course(request.getCourse())
+                .build();
+
+        <span class="keyword">return</span> <span class="method">mapToResponse</span>(studentRepository.save(student));
+    }
+
+    <span class="keyword">public</span> StudentResponse <span class="method">getStudentById</span>(Long id) {
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> <span class="keyword">new</span> ResourceNotFoundException(<span class="string">"Student not found with id: "</span> + id));
+        <span class="keyword">return</span> <span class="method">mapToResponse</span>(student);
+    }
+
+    <span class="keyword">public</span> List&lt;StudentResponse&gt; <span class="method">getStudentsByCourse</span>(CourseEnum course) {
+        <span class="keyword">return</span> studentRepository.findByCourse(course).stream()
+                .map(<span class="keyword">this</span>::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    <span class="keyword">public</span> List&lt;StudentResponse&gt; <span class="method">getAllStudents</span>() {
+        <span class="keyword">return</span> studentRepository.findAll().stream()
+                .map(<span class="keyword">this</span>::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    <span class="annotation">@Transactional</span>
+    <span class="keyword">public</span> StudentResponse <span class="method">updateStudent</span>(Long id, StudentRequest request) {
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> <span class="keyword">new</span> ResourceNotFoundException(<span class="string">"Student not found with id: "</span> + id));
+
+        <span class="keyword">if</span> (!student.getEmail().equals(request.getEmail()) && studentRepository.existsByEmail(request.getEmail())) {
+            <span class="keyword">throw new</span> DuplicateResourceException(<span class="string">"Email already in use: "</span> + request.getEmail());
+        }
+
+        student.setName(request.getName());
+        student.setEmail(request.getEmail());
+        student.setPhone(request.getPhone());
+        student.setDateOfBirth(request.getDateOfBirth());
+        student.setCourse(request.getCourse());
+
+        <span class="keyword">return</span> <span class="method">mapToResponse</span>(studentRepository.save(student));
+    }
+
+    <span class="annotation">@Transactional</span>
+    <span class="keyword">public void</span> <span class="method">deleteStudent</span>(Long id) {
+        <span class="keyword">if</span> (!studentRepository.existsById(id)) {
+            <span class="keyword">throw new</span> ResourceNotFoundException(<span class="string">"Student not found with id: "</span> + id);
+        }
+        studentRepository.deleteById(id);
+    }
+
+    <span class="keyword">private</span> StudentResponse <span class="method">mapToResponse</span>(Student student) {
+        List&lt;StudentResponse.CourseDTO&gt; courseDTOs = student.getCourses().stream()
+                .map(c -> StudentResponse.CourseDTO.builder()
+                        .id(c.getId())
+                        .title(c.getTitle())
+                        .code(c.getCode())
+                        .credits(c.getCredits())
+                        .startDate(c.getStartDate())
+                        .endDate(c.getEndDate())
+                        .build())
+                .collect(Collectors.toList());
+
+        <span class="keyword">return</span> StudentResponse.builder()
+                .id(student.getId())
+                .name(student.getName())
+                .email(student.getEmail())
+                .phone(student.getPhone())
+                .dateOfBirth(student.getDateOfBirth())
+                .course(student.getCourse())
+                .enrollmentDate(student.getEnrollmentDate())
+                .courses(courseDTOs)
+                .build();
+    }
+}
+</pre>
+    </div>
+</div>
+
+<div class="file-card">
+    <div class="file-header">
+        <span>CourseService.java</span>
+        <span class="path">com/jobportal/service</span>
+    </div>
+    <div class="file-body">
+<pre><span class="keyword">package</span> com.jobportal.service;
+
+<span class="keyword">import</span> com.jobportal.dto.*;
+<span class="keyword">import</span> com.jobportal.entity.Course;
+<span class="keyword">import</span> com.jobportal.entity.Student;
+<span class="keyword">import</span> com.jobportal.exception.DuplicateResourceException;
+<span class="keyword">import</span> com.jobportal.exception.ResourceNotFoundException;
+<span class="keyword">import</span> com.jobportal.repository.CourseRepository;
+<span class="keyword">import</span> com.jobportal.repository.StudentRepository;
+<span class="keyword">import</span> org.springframework.stereotype.Service;
+<span class="keyword">import</span> org.springframework.transaction.annotation.Transactional;
+<span class="keyword">import</span> java.util.List;
+<span class="keyword">import</span> java.util.stream.Collectors;
+
+<span class="annotation">@Service</span>
+<span class="keyword">public class</span> <span class="type">CourseService</span> {
+
+    <span class="keyword">private final</span> CourseRepository courseRepository;
+    <span class="keyword">private final</span> StudentRepository studentRepository;
+
+    <span class="keyword">public</span> <span class="method">CourseService</span>(CourseRepository courseRepository, StudentRepository studentRepository) {
+        <span class="keyword">this</span>.courseRepository = courseRepository;
+        <span class="keyword">this</span>.studentRepository = studentRepository;
+    }
+
+    <span class="annotation">@Transactional</span>
+    <span class="keyword">public</span> CourseResponse <span class="method">createCourse</span>(CourseRequest request) {
+        <span class="keyword">if</span> (courseRepository.existsByCode(request.getCode())) {
+            <span class="keyword">throw new</span> DuplicateResourceException(<span class="string">"Course already exists with code: "</span> + request.getCode());
+        }
+
+        Student student = studentRepository.findById(request.getStudentId())
+                .orElseThrow(() -> <span class="keyword">new</span> ResourceNotFoundException(<span class="string">"Student not found with id: "</span> + request.getStudentId()));
+
+        Course course = Course.builder()
+                .title(request.getTitle())
+                .code(request.getCode())
+                .credits(request.getCredits())
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
+                .student(student)
+                .build();
+
+        <span class="keyword">return</span> <span class="method">mapToResponse</span>(courseRepository.save(course));
+    }
+
+    <span class="keyword">public</span> CourseResponse <span class="method">getCourseById</span>(Long id) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> <span class="keyword">new</span> ResourceNotFoundException(<span class="string">"Course not found with id: "</span> + id));
+        <span class="keyword">return</span> <span class="method">mapToResponse</span>(course);
+    }
+
+    <span class="keyword">public</span> List&lt;CourseResponse&gt; <span class="method">getCoursesByStudentId</span>(Long studentId) {
+        <span class="keyword">if</span> (!studentRepository.existsById(studentId)) {
+            <span class="keyword">throw new</span> ResourceNotFoundException(<span class="string">"Student not found with id: "</span> + studentId);
+        }
+        <span class="keyword">return</span> courseRepository.findByStudentId(studentId).stream()
+                .map(<span class="keyword">this</span>::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    <span class="keyword">public</span> List&lt;CourseResponse&gt; <span class="method">getAllCourses</span>() {
+        <span class="keyword">return</span> courseRepository.findAll().stream()
+                .map(<span class="keyword">this</span>::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    <span class="annotation">@Transactional</span>
+    <span class="keyword">public</span> CourseResponse <span class="method">updateCourse</span>(Long id, CourseRequest request) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> <span class="keyword">new</span> ResourceNotFoundException(<span class="string">"Course not found with id: "</span> + id));
+
+        <span class="keyword">if</span> (!course.getCode().equals(request.getCode()) && courseRepository.existsByCode(request.getCode())) {
+            <span class="keyword">throw new</span> DuplicateResourceException(<span class="string">"Course code already in use: "</span> + request.getCode());
+        }
+
+        Student student = studentRepository.findById(request.getStudentId())
+                .orElseThrow(() -> <span class="keyword">new</span> ResourceNotFoundException(<span class="string">"Student not found with id: "</span> + request.getStudentId()));
+
+        course.setTitle(request.getTitle());
+        course.setCode(request.getCode());
+        course.setCredits(request.getCredits());
+        course.setStartDate(request.getStartDate());
+        course.setEndDate(request.getEndDate());
+        course.setStudent(student);
+
+        <span class="keyword">return</span> <span class="method">mapToResponse</span>(courseRepository.save(course));
+    }
+
+    <span class="annotation">@Transactional</span>
+    <span class="keyword">public void</span> <span class="method">deleteCourse</span>(Long id) {
+        <span class="keyword">if</span> (!courseRepository.existsById(id)) {
+            <span class="keyword">throw new</span> ResourceNotFoundException(<span class="string">"Course not found with id: "</span> + id);
+        }
+        courseRepository.deleteById(id);
+    }
+
+    <span class="keyword">public</span> List&lt;CourseResponse&gt; <span class="method">searchCoursesByTitle</span>(String title) {
+        <span class="keyword">return</span> courseRepository.findByTitleContainingIgnoreCase(title).stream()
+                .map(<span class="keyword">this</span>::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
+    <span class="keyword">private</span> CourseResponse <span class="method">mapToResponse</span>(Course course) {
+        <span class="keyword">return</span> CourseResponse.builder()
+                .id(course.getId())
+                .title(course.getTitle())
+                .code(course.getCode())
+                .credits(course.getCredits())
+                .startDate(course.getStartDate())
+                .endDate(course.getEndDate())
+                .studentId(course.getStudent().getId())
+                .studentName(course.getStudent().getName())
+                .build();
+    }
+}
+</pre>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CONTROLLERS -->
+<!-- ============================================================ -->
+
+<div class="file-card">
+    <div class="file-header">
+        <span>StudentController.java</span>
+        <span class="path">com/jobportal/controller</span>
+    </div>
+    <div class="file-body">
+<pre><span class="keyword">package</span> com.jobportal.controller;
+
+<span class="keyword">import</span> com.jobportal.dto.*;
+<span class="keyword">import</span> com.jobportal.enums.CourseEnum;
+<span class="keyword">import</span> com.jobportal.service.StudentService;
+<span class="keyword">import</span> jakarta.validation.Valid;
+<span class="keyword">import</span> org.springframework.http.HttpStatus;
+<span class="keyword">import</span> org.springframework.http.ResponseEntity;
+<span class="keyword">import</span> org.springframework.web.bind.annotation.*;
+<span class="keyword">import</span> java.util.List;
+<span class="keyword">import</span> java.util.Map;
+
+<span class="annotation">@RestController</span>
+<span class="annotation">@RequestMapping</span>(<span class="string">"/api/students"</span>)
+<span class="keyword">public class</span> <span class="type">StudentController</span> {
+
+    <span class="keyword">private final</span> StudentService studentService;
+
+    <span class="keyword">public</span> <span class="method">StudentController</span>(StudentService studentService) {
+        <span class="keyword">this</span>.studentService = studentService;
+    }
+
+    <span class="annotation">@PostMapping</span>
+    <span class="keyword">public</span> ResponseEntity&lt;StudentResponse&gt; <span class="method">createStudent</span>(<span class="annotation">@Valid @RequestBody</span> StudentRequest request) {
+        <span class="keyword">return</span> ResponseEntity.status(HttpStatus.CREATED).body(studentService.createStudent(request));
+    }
+
+    <span class="annotation">@GetMapping</span>(<span class="string">"/by-course/{course}"</span>)
+    <span class="keyword">public</span> ResponseEntity&lt;List&lt;StudentResponse&gt;&gt; <span class="method">getStudentsByCourse</span>(<span class="annotation">@PathVariable</span> CourseEnum course) {
+        <span class="keyword">return</span> ResponseEntity.ok(studentService.getStudentsByCourse(course));
+    }
+
+    <span class="annotation">@GetMapping</span>
+    <span class="keyword">public</span> ResponseEntity&lt;List&lt;StudentResponse&gt;&gt; <span class="method">getAllStudents</span>() {
+        <span class="keyword">return</span> ResponseEntity.ok(studentService.getAllStudents());
+    }
+
+    <span class="annotation">@GetMapping</span>(<span class="string">"/{id}"</span>)
+    <span class="keyword">public</span> ResponseEntity&lt;StudentResponse&gt; <span class="method">getStudentById</span>(<span class="annotation">@PathVariable</span> Long id) {
+        <span class="keyword">return</span> ResponseEntity.ok(studentService.getStudentById(id));
+    }
+
+    <span class="annotation">@PutMapping</span>(<span class="string">"/{id}"</span>)
+    <span class="keyword">public</span> ResponseEntity&lt;StudentResponse&gt; <span class="method">updateStudent</span>(<span class="annotation">@PathVariable</span> Long id, <span class="annotation">@Valid @RequestBody</span> StudentRequest request) {
+        <span class="keyword">return</span> ResponseEntity.ok(studentService.updateStudent(id, request));
+    }
+
+    <span class="annotation">@DeleteMapping</span>(<span class="string">"/{id}"</span>)
+    <span class="keyword">public</span> ResponseEntity&lt;Map&lt;String, Object&gt;&gt; <span class="method">deleteStudent</span>(<span class="annotation">@PathVariable</span> Long id) {
+        studentService.deleteStudent(id);
+        <span class="keyword">return</span> ResponseEntity.ok(Map.of(<span class="string">"message"</span>, <span class="string">"Student deleted successfully"</span>, <span class="string">"id"</span>, id));
+    }
+}
+</pre>
+    </div>
+</div>
+
+<div class="file-card">
+    <div class="file-header">
+        <span>CourseController.java</span>
+        <span class="path">com/jobportal/controller</span>
+    </div>
+    <div class="file-body">
+<pre><span class="keyword">package</span> com.jobportal.controller;
+
+<span class="keyword">import</span> com.jobportal.dto.*;
+<span class="keyword">import</span> com.jobportal.service.CourseService;
+<span class="keyword">import</span> jakarta.validation.Valid;
+<span class="keyword">import</span> org.springframework.http.HttpStatus;
+<span class="keyword">import</span> org.springframework.http.ResponseEntity;
+<span class="keyword">import</span> org.springframework.web.bind.annotation.*;
+<span class="keyword">import</span> java.util.List;
+<span class="keyword">import</span> java.util.Map;
+
+<span class="annotation">@RestController</span>
+<span class="annotation">@RequestMapping</span>(<span class="string">"/api/courses"</span>)
+<span class="keyword">public class</span> <span class="type">CourseController</span> {
+
+    <span class="keyword">private final</span> CourseService courseService;
+
+    <span class="keyword">public</span> <span class="method">CourseController</span>(CourseService courseService) {
+        <span class="keyword">this</span>.courseService = courseService;
+    }
+
+    <span class="annotation">@PostMapping</span>
+    <span class="keyword">public</span> ResponseEntity&lt;CourseResponse&gt; <span class="method">createCourse</span>(<span class="annotation">@Valid @RequestBody</span> CourseRequest request) {
+        <span class="keyword">return</span> ResponseEntity.status(HttpStatus.CREATED).body(courseService.createCourse(request));
+    }
+
+    <span class="annotation">@GetMapping</span>
+    <span class="keyword">public</span> ResponseEntity&lt;List&lt;CourseResponse&gt;&gt; <span class="method">getAllCourses</span>() {
+        <span class="keyword">return</span> ResponseEntity.ok(courseService.getAllCourses());
+    }
+
+    <span class="annotation">@GetMapping</span>(<span class="string">"/{id}"</span>)
+    <span class="keyword">public</span> ResponseEntity&lt;CourseResponse&gt; <span class="method">getCourseById</span>(<span class="annotation">@PathVariable</span> Long id) {
+        <span class="keyword">return</span> ResponseEntity.ok(courseService.getCourseById(id));
+    }
+
+    <span class="annotation">@GetMapping</span>(<span class="string">"/by-student/{studentId}"</span>)
+    <span class="keyword">public</span> ResponseEntity&lt;List&lt;CourseResponse&gt;&gt; <span class="method">getCoursesByStudentId</span>(<span class="annotation">@PathVariable</span> Long studentId) {
+        <span class="keyword">return</span> ResponseEntity.ok(courseService.getCoursesByStudentId(studentId));
+    }
+
+    <span class="annotation">@GetMapping</span>(<span class="string">"/search"</span>)
+    <span class="keyword">public</span> ResponseEntity&lt;List&lt;CourseResponse&gt;&gt; <span class="method">searchCoursesByTitle</span>(<span class="annotation">@RequestParam</span>(<span class="string">"title"</span>) String title) {
+        <span class="keyword">return</span> ResponseEntity.ok(courseService.searchCoursesByTitle(title));
+    }
+
+    <span class="annotation">@PutMapping</span>(<span class="string">"/{id}"</span>)
+    <span class="keyword">public</span> ResponseEntity&lt;CourseResponse&gt; <span class="method">updateCourse</span>(<span class="annotation">@PathVariable</span> Long id, <span class="annotation">@Valid @RequestBody</span> CourseRequest request) {
+        <span class="keyword">return</span> ResponseEntity.ok(courseService.updateCourse(id, request));
+    }
+
+    <span class="annotation">@DeleteMapping</span>(<span class="string">"/{id}"</span>)
+    <span class="keyword">public</span> ResponseEntity&lt;Map&lt;String, Object&gt;&gt; <span class="method">deleteCourse</span>(<span class="annotation">@PathVariable</span> Long id) {
+        courseService.deleteCourse(id);
+        <span class="keyword">return</span> ResponseEntity.ok(Map.of(<span class="string">"message"</span>, <span class="string">"Course deleted successfully"</span>, <span class="string">"id"</span>, id));
+    }
+}
+</pre>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- EXCEPTIONS -->
+<!-- ============================================================ -->
+
+<div class="file-card">
+    <div class="file-header">
+        <span>ResourceNotFoundException.java</span>
+        <span class="path">com/jobportal/exception</span>
+    </div>
+    <div class="file-body">
+<pre><span class="keyword">package</span> com.jobportal.exception;
+
+<span class="keyword">public class</span> <span class="type">ResourceNotFoundException</span> <span class="keyword">extends</span> RuntimeException {
+    <span class="keyword">public</span> <span class="method">ResourceNotFoundException</span>(String message) {
+        <span class="keyword">super</span>(message);
+    }
+}
+</pre>
+    </div>
+</div>
+
+<div class="file-card">
+    <div class="file-header">
+        <span>DuplicateResourceException.java</span>
+        <span class="path">com/jobportal/exception</span>
+    </div>
+    <div class="file-body">
+<pre><span class="keyword">package</span> com.jobportal.exception;
+
+<span class="keyword">public class</span> <span class="type">DuplicateResourceException</span> <span class="keyword">extends</span> RuntimeException {
+    <span class="keyword">public</span> <span class="method">DuplicateResourceException</span>(String message) {
+        <span class="keyword">super</span>(message);
+    }
+}
+</pre>
+    </div>
+</div>
+
+<div class="file-card">
+    <div class="file-header">
+        <span>GlobalExceptionHandler.java</span>
+        <span class="path">com/jobportal/exception</span>
+    </div>
+    <div class="file-body">
+<pre><span class="keyword">package</span> com.jobportal.exception;
+
+<span class="keyword">import</span> com.jobportal.dto.ErrorResponse;
+<span class="keyword">import</span> org.springframework.http.HttpStatus;
+<span class="keyword">import</span> org.springframework.http.ResponseEntity;
+<span class="keyword">import</span> org.springframework.validation.FieldError;
+<span class="keyword">import</span> org.springframework.web.bind.MethodArgumentNotValidException;
+<span class="keyword">import</span> org.springframework.web.bind.annotation.ControllerAdvice;
+<span class="keyword">import</span> org.springframework.web.bind.annotation.ExceptionHandler;
+<span class="keyword">import</span> org.springframework.web.context.request.WebRequest;
+<span class="keyword">import</span> java.time.LocalDateTime;
+<span class="keyword">import</span> java.util.Map;
+<span class="keyword">import</span> java.util.stream.Collectors;
+
+<span class="annotation">@ControllerAdvice</span>
+<span class="keyword">public class</span> <span class="type">GlobalExceptionHandler</span> {
+
+    <span class="annotation">@ExceptionHandler</span>(ResourceNotFoundException.class)
+    <span class="keyword">public</span> ResponseEntity&lt;ErrorResponse&gt; <span class="method">handleNotFound</span>(ResourceNotFoundException ex, WebRequest request) {
+        <span class="keyword">return</span> <span class="method">buildResponse</span>(HttpStatus.NOT_FOUND, <span class="string">"Not Found"</span>, ex.getMessage(), request, <span class="keyword">null</span>);
+    }
+
+    <span class="annotation">@ExceptionHandler</span>(DuplicateResourceException.class)
+    <span class="keyword">public</span> ResponseEntity&lt;ErrorResponse&gt; <span class="method">handleDuplicate</span>(DuplicateResourceException ex, WebRequest request) {
+        <span class="keyword">return</span> <span class="method">buildResponse</span>(HttpStatus.CONFLICT, <span class="string">"Conflict"</span>, ex.getMessage(), request, <span class="keyword">null</span>);
+    }
+
+    <span class="annotation">@ExceptionHandler</span>(MethodArgumentNotValidException.class)
+    <span class="keyword">public</span> ResponseEntity&lt;ErrorResponse&gt; <span class="method">handleValidation</span>(MethodArgumentNotValidException ex, WebRequest request) {
+        Map&lt;String, String&gt; fieldErrors = ex.getBindingResult().getFieldErrors().stream()
+                .collect(Collectors.toMap(FieldError::getField, fe -> fe.getDefaultMessage() != <span class="keyword">null</span> ? fe.getDefaultMessage() : <span class="string">"Invalid value"</span>, (a, b) -> a));
+        <span class="keyword">return</span> <span class="method">buildResponse</span>(HttpStatus.BAD_REQUEST, <span class="string">"Validation Failed"</span>, <span class="string">"Input validation failed"</span>, request, fieldErrors);
+    }
+
+    <span class="annotation">@ExceptionHandler</span>(IllegalArgumentException.class)
+    <span class="keyword">public</span> ResponseEntity&lt;ErrorResponse&gt; <span class="method">handleBadArgument</span>(IllegalArgumentException ex, WebRequest request) {
+        <span class="keyword">return</span> <span class="method">buildResponse</span>(HttpStatus.BAD_REQUEST, <span class="string">"Bad Request"</span>, ex.getMessage(), request, <span class="keyword">null</span>);
+    }
+
+    <span class="annotation">@ExceptionHandler</span>(Exception.class)
+    <span class="keyword">public</span> ResponseEntity&lt;ErrorResponse&gt; <span class="method">handleGeneric</span>(Exception ex, WebRequest request) {
+        <span class="keyword">return</span> <span class="method">buildResponse</span>(HttpStatus.INTERNAL_SERVER_ERROR, <span class="string">"Internal Server Error"</span>, <span class="string">"An unexpected error occurred"</span>, request, <span class="keyword">null</span>);
+    }
+
+    <span class="keyword">private</span> ResponseEntity&lt;ErrorResponse&gt; <span class="method">buildResponse</span>(HttpStatus status, String error, String message, WebRequest request, Map&lt;String, String&gt; fieldErrors) {
+        ErrorResponse response = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(status.value())
+                .error(error)
+                .message(message)
+                .path(request.getDescription(<span class="keyword">false</span>).replace(<span class="string">"uri="</span>, <span class="string">""</span>))
+                .fieldErrors(fieldErrors)
+                .build();
+        <span class="keyword">return</span> ResponseEntity.status(status).body(response);
+    }
+}
+</pre>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MAIN APPLICATION -->
+<!-- ============================================================ -->
+
+<div class="file-card">
+    <div class="file-header">
+        <span>JobPortalApplication.java</span>
+        <span class="path">com/jobportal</span>
+    </div>
+    <div class="file-body">
+<pre><span class="keyword">package</span> com.jobportal;
+
+<span class="keyword">import</span> org.springframework.boot.SpringApplication;
+<span class="keyword">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;
+
+<span class="annotation">@SpringBootApplication</span>
+<span class="keyword">public class</span> <span class="type">JobPortalApplication</span> {
+    <span class="keyword">public static void</span> <span class="method">main</span>(String[] args) {
         SpringApplication.run(JobPortalApplication.class, args);
     }
-}` },
-            { name: "enums/IndustryType.java", lang: "Java", code: `package com.jobportal.enums;
+}
+</pre>
+    </div>
+</div>
 
-public enum IndustryType {
-    EDUCATION,
-    PHARMACEUTICAL,
-    HOSPITALITY,
-    INFORMATION_TECHNOLOGY,
-    BANKING,
-    HEALTHCARE
-}` },
-            { name: "enums/JobType.java", lang: "Java", code: `package com.jobportal.enums;
-
-public enum JobType {
-    FULL_TIME,
-    PART_TIME,
-    CONTRACT
-}` },
-            { name: "enums/JobStatus.java", lang: "Java", code: `package com.jobportal.enums;
-
-public enum JobStatus {
-    AVAILABLE,
-    UNAVAILABLE
-}` },
-            { name: "entity/Company.java", lang: "Java", code: `package com.jobportal.entity;
-
-import com.jobportal.enums.IndustryType;
-import jakarta.persistence.*;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
-@Entity
-@Table(name = "companies")
-public class Company {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(unique = true)
-    private String name;
-
-    @Column(unique = true)
-    private String email;
-
-    private String location;
-
-    @Enumerated(EnumType.STRING)
-    private IndustryType industry;
-
-    private LocalDate createdOn;
-
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL)
-    private List<Job> jobs = new ArrayList<>();
-
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-    public String getLocation() { return location; }
-    public void setLocation(String location) { this.location = location; }
-    public IndustryType getIndustry() { return industry; }
-    public void setIndustry(IndustryType industry) { this.industry = industry; }
-    public LocalDate getCreatedOn() { return createdOn; }
-    public void setCreatedOn(LocalDate createdOn) { this.createdOn = createdOn; }
-    public List<Job> getJobs() { return jobs; }
-    public void setJobs(List<Job> jobs) { this.jobs = jobs; }
-}` },
-            { name: "entity/Job.java", lang: "Java", code: `package com.jobportal.entity;
-
-import com.jobportal.enums.JobStatus;
-import com.jobportal.enums.JobType;
-import jakarta.persistence.*;
-import java.time.LocalDate;
-
-@Entity
-@Table(name = "jobs")
-public class Job {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false)
-    private String title;
-
-    @Column(nullable = false)
-    private String description;
-
-    @Column(nullable = false)
-    private Double salary;
-
-    @Column(nullable = false)
-    private String location;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private JobType jobType;
-
-    @Column(nullable = false)
-    private LocalDate postedDate;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private JobStatus status;
-
-    @ManyToOne
-    @JoinColumn(name = "company_id", nullable = false)
-    private Company company;
-
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-    public Double getSalary() { return salary; }
-    public void setSalary(Double salary) { this.salary = salary; }
-    public String getLocation() { return location; }
-    public void setLocation(String location) { this.location = location; }
-    public JobType getJobType() { return jobType; }
-    public void setJobType(JobType jobType) { this.jobType = jobType; }
-    public LocalDate getPostedDate() { return postedDate; }
-    public void setPostedDate(LocalDate postedDate) { this.postedDate = postedDate; }
-    public JobStatus getStatus() { return status; }
-    public void setStatus(JobStatus status) { this.status = status; }
-    public Company getCompany() { return company; }
-    public void setCompany(Company company) { this.company = company; }
-}` },
-            { name: "dto/JobRequestDto.java", lang: "Java", code: `package com.jobportal.dto;
-
-import com.jobportal.enums.JobType;
-
-public class JobRequestDto {
-
-    private Long companyId;
-    private String title;
-    private String description;
-    private Double salary;
-    private String location;
-    private JobType jobType;
-
-    public Long getCompanyId() { return companyId; }
-    public void setCompanyId(Long companyId) { this.companyId = companyId; }
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-    public Double getSalary() { return salary; }
-    public void setSalary(Double salary) { this.salary = salary; }
-    public String getLocation() { return location; }
-    public void setLocation(String location) { this.location = location; }
-    public JobType getJobType() { return jobType; }
-    public void setJobType(JobType jobType) { this.jobType = jobType; }
-}` },
-            { name: "dto/SalaryUpdateDto.java", lang: "Java", code: `package com.jobportal.dto;
-
-public class SalaryUpdateDto {
-
-    private Long companyId;
-    private String jobTitle;
-    private Double salary;
-
-    public Long getCompanyId() { return companyId; }
-    public void setCompanyId(Long companyId) { this.companyId = companyId; }
-    public String getJobTitle() { return jobTitle; }
-    public void setJobTitle(String jobTitle) { this.jobTitle = jobTitle; }
-    public Double getSalary() { return salary; }
-    public void setSalary(Double salary) { this.salary = salary; }
-}` },
-            { name: "dto/JobStatusDto.java", lang: "Java", code: `package com.jobportal.dto;
-
-public class JobStatusDto {
-
-    private String companyName;
-    private String jobTitle;
-
-    public String getCompanyName() { return companyName; }
-    public void setCompanyName(String companyName) { this.companyName = companyName; }
-    public String getJobTitle() { return jobTitle; }
-    public void setJobTitle(String jobTitle) { this.jobTitle = jobTitle; }
-}` },
-            { name: "repository/CompanyRepository.java", lang: "Java", code: `package com.jobportal.repository;
-
-import com.jobportal.entity.Company;
-import com.jobportal.enums.IndustryType;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-import java.util.List;
-import java.util.Optional;
-
-@Repository
-public interface CompanyRepository extends JpaRepository<Company, Long> {
-
-    List<Company> findByIndustryAndLocation(IndustryType industry, String location);
-
-    Optional<Company> findByName(String name);
-}` },
-            { name: "repository/JobRepository.java", lang: "Java", code: `package com.jobportal.repository;
-
-import com.jobportal.entity.Job;
-import com.jobportal.enums.IndustryType;
-import com.jobportal.enums.JobType;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-import java.util.List;
-import java.util.Optional;
-
-@Repository
-public interface JobRepository extends JpaRepository<Job, Long> {
-
-    List<Job> findByLocation(String location);
-
-    List<Job> findByCompanyIndustryAndSalaryGreaterThanEqual(IndustryType industry, Double salary);
-
-    Optional<Job> findByCompanyIdAndTitle(Long companyId, String title);
-
-    Optional<Job> findByCompanyNameAndTitle(String companyName, String title);
-
-    long deleteByCompanyNameAndJobType(String companyName, JobType jobType);
-}` },
-            { name: "exception/ResourceNotFoundException.java", lang: "Java", code: `package com.jobportal.exception;
-
-public class ResourceNotFoundException extends RuntimeException {
-
-    public ResourceNotFoundException(String message) {
-        super(message);
-    }
-}` },
-            { name: "exception/ErrorResponse.java", lang: "Java", code: `package com.jobportal.exception;
-
-import java.time.LocalDateTime;
-
-public class ErrorResponse {
-
-    private LocalDateTime timestamp;
-    private int status;
-    private String error;
-    private String message;
-
-    public ErrorResponse(LocalDateTime timestamp, int status, String error, String message) {
-        this.timestamp = timestamp;
-        this.status = status;
-        this.error = error;
-        this.message = message;
-    }
-
-    public LocalDateTime getTimestamp() { return timestamp; }
-    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
-    public int getStatus() { return status; }
-    public void setStatus(int status) { this.status = status; }
-    public String getError() { return error; }
-    public void setError(String error) { this.error = error; }
-    public String getMessage() { return message; }
-    public void setMessage(String message) { this.message = message; }
-}` },
-            { name: "exception/GlobalExceptionHandler.java", lang: "Java", code: `package com.jobportal.exception;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
-import java.time.LocalDateTime;
-
-@RestControllerAdvice
-public class GlobalExceptionHandler {
-
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex) {
-        ErrorResponse response = new ErrorResponse(
-                LocalDateTime.now(), 404, "NOT_FOUND", ex.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception ex) {
-        ErrorResponse response = new ErrorResponse(
-                LocalDateTime.now(), 500, "INTERNAL_SERVER_ERROR", ex.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-}` },
-            { name: "service/CompanyService.java", lang: "Java", code: `package com.jobportal.service;
-
-import com.jobportal.entity.Company;
-import com.jobportal.enums.IndustryType;
-import java.util.List;
-
-public interface CompanyService {
-
-    List<Company> getCompanies(IndustryType industry, String location);
-}` },
-            { name: "service/CompanyServiceImpl.java", lang: "Java", code: `package com.jobportal.service;
-
-import com.jobportal.entity.Company;
-import com.jobportal.enums.IndustryType;
-import com.jobportal.repository.CompanyRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import java.util.List;
-
-@Service
-public class CompanyServiceImpl implements CompanyService {
-
-    @Autowired
-    private CompanyRepository companyRepo;
-
-    @Override
-    public List<Company> getCompanies(IndustryType industry, String location) {
-        return companyRepo.findByIndustryAndLocation(industry, location);
-    }
-}` },
-            { name: "service/JobService.java", lang: "Java", code: `package com.jobportal.service;
-
-import com.jobportal.entity.Job;
-import com.jobportal.enums.IndustryType;
-import com.jobportal.enums.JobType;
-import com.jobportal.dto.JobRequestDto;
-import com.jobportal.dto.SalaryUpdateDto;
-import com.jobportal.dto.JobStatusDto;
-import java.util.List;
-
-public interface JobService {
-
-    Job createJob(JobRequestDto dto);
-
-    List<Job> getJobsByLocation(String location);
-
-    void deleteJobs(String companyName, JobType jobType);
-
-    Job updateSalary(SalaryUpdateDto dto);
-
-    List<Job> getJobsByIndustrySalary(IndustryType industry, Double salary);
-
-    Job updateJobStatus(JobStatusDto dto);
-}` },
-            { name: "service/JobServiceImpl.java", lang: "Java", code: `package com.jobportal.service;
-
-import com.jobportal.entity.Company;
-import com.jobportal.entity.Job;
-import com.jobportal.enums.IndustryType;
-import com.jobportal.enums.JobStatus;
-import com.jobportal.enums.JobType;
-import com.jobportal.exception.ResourceNotFoundException;
-import com.jobportal.repository.CompanyRepository;
-import com.jobportal.repository.JobRepository;
-import com.jobportal.dto.JobRequestDto;
-import com.jobportal.dto.SalaryUpdateDto;
-import com.jobportal.dto.JobStatusDto;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import java.time.LocalDate;
-import java.util.List;
-
-@Service
-public class JobServiceImpl implements JobService {
-
-    @Autowired
-    private JobRepository jobRepo;
-
-    @Autowired
-    private CompanyRepository companyRepo;
-
-    @Override
-    public Job createJob(JobRequestDto dto) {
-        Company company = companyRepo.findById(dto.getCompanyId())
-                .orElseThrow(() -> new ResourceNotFoundException("Company Not Found"));
-
-        Job job = new Job();
-        job.setTitle(dto.getTitle());
-        job.setDescription(dto.getDescription());
-        job.setSalary(dto.getSalary());
-        job.setLocation(dto.getLocation());
-        job.setJobType(dto.getJobType());
-        job.setPostedDate(LocalDate.now());
-        job.setStatus(JobStatus.AVAILABLE);
-        job.setCompany(company);
-
-        return jobRepo.save(job);
-    }
-
-    @Override
-    public List<Job> getJobsByLocation(String location) {
-        return jobRepo.findByLocation(location);
-    }
-
-    @Override
-    public void deleteJobs(String companyName, JobType jobType) {
-        jobRepo.deleteByCompanyNameAndJobType(companyName, jobType);
-    }
-
-    @Override
-    public Job updateSalary(SalaryUpdateDto dto) {
-        Job job = jobRepo.findByCompanyIdAndTitle(dto.getCompanyId(), dto.getJobTitle())
-                .orElseThrow(() -> new ResourceNotFoundException("Job Not Found"));
-
-        job.setSalary(dto.getSalary());
-        return jobRepo.save(job);
-    }
-
-    @Override
-    public List<Job> getJobsByIndustrySalary(IndustryType industry, Double salary) {
-        return jobRepo.findByCompanyIndustryAndSalaryGreaterThanEqual(industry, salary);
-    }
-
-    @Override
-    public Job updateJobStatus(JobStatusDto dto) {
-        Job job = jobRepo.findByCompanyNameAndTitle(dto.getCompanyName(), dto.getJobTitle())
-                .orElseThrow(() -> new ResourceNotFoundException("Job Not Found"));
-
-        job.setStatus(JobStatus.UNAVAILABLE);
-        return jobRepo.save(job);
-    }
-}` },
-            { name: "controller/CompanyController.java", lang: "Java", code: `package com.jobportal.controller;
-
-import com.jobportal.entity.Company;
-import com.jobportal.enums.IndustryType;
-import com.jobportal.service.CompanyService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
-
-@RestController
-@RequestMapping("/api/companies")
-public class CompanyController {
-
-    @Autowired
-    private CompanyService service;
-
-    @GetMapping
-    public ResponseEntity<List<Company>> getCompanies(
-            @RequestParam IndustryType industry,
-            @RequestParam String location) {
-
-        return ResponseEntity.ok(service.getCompanies(industry, location));
-    }
-}` },
-            { name: "controller/JobController.java", lang: "Java", code: `package com.jobportal.controller;
-
-import com.jobportal.entity.Job;
-import com.jobportal.enums.IndustryType;
-import com.jobportal.enums.JobType;
-import com.jobportal.service.JobService;
-import com.jobportal.dto.JobRequestDto;
-import com.jobportal.dto.SalaryUpdateDto;
-import com.jobportal.dto.JobStatusDto;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
-
-@RestController
-@RequestMapping("/api/jobs")
-public class JobController {
-
-    @Autowired
-    private JobService service;
-
-    @PostMapping
-    public ResponseEntity<Job> createJob(@RequestBody JobRequestDto dto) {
-        return new ResponseEntity<>(service.createJob(dto), HttpStatus.CREATED);
-    }
-
-    @GetMapping("/location/{location}")
-    public ResponseEntity<List<Job>> getJobsByLocation(@PathVariable String location) {
-        return ResponseEntity.ok(service.getJobsByLocation(location));
-    }
-
-    @DeleteMapping
-    public ResponseEntity<String> deleteJobs(
-            @RequestParam String companyName,
-            @RequestParam JobType jobType) {
-
-        service.deleteJobs(companyName, jobType);
-        return ResponseEntity.ok("Deleted Successfully");
-    }
-
-    @PutMapping("/salary")
-    public ResponseEntity<Job> updateSalary(@RequestBody SalaryUpdateDto dto) {
-        return ResponseEntity.ok(service.updateSalary(dto));
-    }
-
-    @GetMapping("/industry")
-    public ResponseEntity<List<Job>> getJobs(
-            @RequestParam IndustryType industry,
-            @RequestParam Double salary) {
-
-        return ResponseEntity.ok(service.getJobsByIndustrySalary(industry, salary));
-    }
-
-    @PutMapping("/status")
-    public ResponseEntity<Job> updateStatus(@RequestBody JobStatusDto dto) {
-        return ResponseEntity.ok(service.updateJobStatus(dto));
-    }
-}` },
-            { name: "MySQL Sample Data", lang: "SQL", code: `INSERT INTO companies (name, email, location, industry, created_on) VALUES
-
-('TCS', 'tcs@gmail.com', 'Pune', 'INFORMATION_TECHNOLOGY', CURDATE()),
-
-('Infosys', 'infosys@gmail.com', 'Bangalore', 'INFORMATION_TECHNOLOGY', CURDATE()),
-
-('HDFC Bank', 'hdfc@gmail.com', 'Mumbai', 'BANKING', CURDATE()),
-
-('Apollo Hospitals', 'apollo@gmail.com', 'Delhi', 'HEALTHCARE', CURDATE());` },
-            { name: "Postman Testing Endpoints", lang: "Text", code: `1. Get Companies
-   GET /api/companies?industry=BANKING&location=Mumbai
-
-2. Create Job
-   POST /api/jobs
-   Body (JSON):
-   {
-     "companyId": 1,
-     "title": "Java Developer",
-     "description": "Spring Boot Developer",
-     "salary": 80000,
-     "location": "Pune",
-     "jobType": "FULL_TIME"
-   }
-
-3. Get Jobs By Location
-   GET /api/jobs/location/Pune
-
-4. Delete Jobs
-   DELETE /api/jobs?companyName=TCS&jobType=CONTRACT
-
-5. Update Salary
-   PUT /api/jobs/salary
-   Body (JSON):
-   {
-     "companyId": 1,
-     "jobTitle": "Java Developer",
-     "salary": 120000
-   }
-
-6. Industry + Minimum Salary
-   GET /api/jobs/industry?industry=INFORMATION_TECHNOLOGY&salary=50000
-
-7. Update Status
-   PUT /api/jobs/status
-   Body (JSON):
-   {
-     "companyName": "TCS",
-     "jobTitle": "Java Developer"
-   }` }
-        ];
-
-        const container = document.getElementById('file-sections');
-
-        files.forEach(f => {
-            const section = document.createElement('div');
-            section.className = 'file-section';
-
-            const header = document.createElement('div');
-            header.className = 'file-header';
-
-            const nameSpan = document.createElement('span');
-            nameSpan.className = 'file-name';
-            nameSpan.textContent = f.name;
-
-            const badge = document.createElement('span');
-            badge.className = 'lang-badge';
-            badge.textContent = f.lang;
-
-            const copyBtn = document.createElement('button');
-            copyBtn.className = 'copy-btn';
-            copyBtn.textContent = 'Copy';
-            copyBtn.onclick = () => {
-                navigator.clipboard.writeText(f.code).then(() => {
-                    copyBtn.textContent = 'Copied!';
-                    copyBtn.classList.add('copied');
-                    setTimeout(() => {
-                        copyBtn.textContent = 'Copy';
-                        copyBtn.classList.remove('copied');
-                    }, 2000);
-                });
-            };
-
-            header.appendChild(nameSpan);
-            header.appendChild(badge);
-            header.appendChild(copyBtn);
-
-            const pre = document.createElement('pre');
-            const code = document.createElement('code');
-            code.className = f.lang === 'XML' ? 'language-xml' : f.lang === 'SQL' ? 'language-sql' : f.lang === 'Properties' ? 'language-ini' : 'language-java';
-            code.textContent = f.code;
-
-            pre.appendChild(code);
-            section.appendChild(header);
-            section.appendChild(pre);
-            container.appendChild(section);
-        });
-
-        hljs.highlightAll();
-    </script>
 </body>
 </html>
