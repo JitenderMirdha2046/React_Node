@@ -1,0 +1,576 @@
+<html>
+<head>
+<title>MVC Code Viewer</title>
+</head>
+<body>
+
+<h2>Project: New Folder 1 (Java)</h2>
+<hr>
+
+<h3>App.java</h3>
+<pre>
+package com.myapp;
+
+/**
+ * Hello world!
+ *
+ */
+public class App 
+{
+    public static void main( String[] args )
+    {
+        System.out.println( "Hello World!" );
+    }
+}
+</pre>
+
+<h3>AppTest.java</h3>
+<pre>
+package com.myapp;
+
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+/**
+ * Unit test for simple App.
+ */
+public class AppTest 
+    extends TestCase
+{
+    /**
+     * Create the test case
+     *
+     * @param testName name of the test case
+     */
+    public AppTest( String testName )
+    {
+        super( testName );
+    }
+
+    /**
+     * @return the suite of tests being tested
+     */
+    public static Test suite()
+    {
+        return new TestSuite( AppTest.class );
+    }
+
+    /**
+     * Rigourous Test :-)
+     */
+    public void testApp()
+    {
+        assertTrue( true );
+    }
+}
+</pre>
+
+<hr>
+<h2>Project: Day11 / LabDemo (C# ASP.NET Core MVC)</h2>
+<hr>
+
+<h3>Program.cs</h3>
+<pre>
+namespace LabDemo
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            var builder = WebApplication.CreateBuilder(args);
+
+            // Add services to the container.
+            builder.Services.AddControllersWithViews();
+
+            builder.Services.AddCors((options) => {
+
+                options.AddPolicy("policy1", policy => {
+                    policy.WithOrigins("*").WithMethods("*").WithHeaders("*");
+                });
+
+                options.AddPolicy("policy2", policy => {
+                    policy.WithOrigins("iacsd.com").WithMethods("GET, POST").WithHeaders("*");
+                });
+
+                options.AddPolicy("policy3", policy => {
+                    policy.WithOrigins("iacsd.com, google.com").WithMethods("GET").WithHeaders("content-type");
+                });
+
+            });
+
+            var app = builder.Build();
+
+            // Configure the HTTP request pipeline.
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseExceptionHandler("/Home/Error");
+            }
+            app.UseStaticFiles();
+
+            app.UseRouting();
+
+            app.UseCors();
+            app.UseAuthorization();
+
+            app.MapControllerRoute(
+                name: "default",
+                pattern: "{controller=Home}/{action=Index}/{id?}");
+
+            app.Run();
+        }
+    }
+}
+</pre>
+
+<h2>Controllers</h2>
+<hr>
+
+<h3>Controllers/BaseController.cs</h3>
+<pre>
+using Microsoft.AspNetCore.Mvc;
+using LabDemo.Filters;
+
+namespace LabDemo.Controllers
+{
+    [LogFilter]
+    public abstract class BaseController : Controller
+    {
+    }
+}
+</pre>
+
+<h3>Controllers/HomeController.cs</h3>
+<pre>
+using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+using LabDemo.Models;
+
+namespace LabDemo.Controllers
+{
+    public class HomeController : BaseController
+    {
+        LabDbContext db = new LabDbContext();
+
+        public IActionResult Index()
+        {
+            return View("Index", db.Emps.ToList());
+        }
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+            //Let us return Empty Form UI with Name and Address textboxes 
+            return View("Create");
+        }
+
+        //Below method is called after new data is submitted from User / Browser
+        [HttpPost]
+        public IActionResult Create(Emp emp)
+        {
+            db.Emps.Add(emp);
+            db.SaveChanges();
+            return Redirect("/Home/Index");
+        }
+
+        [HttpGet]
+        public IActionResult Edit(int? id)
+        {
+            Emp empToBeModified = db.Emps.Find(id);
+
+            //Let us return Form UI filled with existing Emp Data
+            return View("Edit", empToBeModified);
+        }
+
+        //Below method is called after updated data is submitted from User / Browser
+        [HttpPost]
+        public IActionResult Edit(Emp empUpdated)
+        {
+            Emp emp = db.Emps.Find(empUpdated.No);
+            emp.Name = empUpdated.Name;
+            emp.Address = empUpdated.Address;
+
+            db.SaveChanges();
+            return Redirect("/Home/Index");
+        }
+
+        public IActionResult Delete(int? id)
+        {
+            Emp empToBeDeleted = db.Emps.Find(id);
+
+            db.Emps.Remove(empToBeDeleted);
+            db.SaveChanges();
+
+            return Redirect("/Home/Index");
+        }
+    }
+}
+</pre>
+
+<h3>Controllers/LogController.cs</h3>
+<pre>
+using Microsoft.AspNetCore.Mvc;
+using LabDemo.Loggers;
+using Microsoft.AspNetCore.Cors;
+
+namespace LabDemo.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    [EnableCors("policy1")]
+    public class LogController : ControllerBase
+    {
+        [HttpPost]
+        public void Post([FromBody] string message)
+        {
+         Logger.CurrentLogger.Log(message);
+        }
+    }
+}
+</pre>
+
+<h3>Controllers/EmpsController.cs</h3>
+<pre>
+using LabDemo.Models;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
+
+// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
+namespace LabDemo.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    [EnableCors("policy1")]
+    public class EmpsController : ControllerBase
+    {
+        LabDbContext db = new LabDbContext();
+
+        [HttpGet]
+        public IEnumerable<Emp> Get()
+        {
+            return db.Emps.ToList();
+        }
+
+        [HttpGet("{id}")]
+        public Emp Get(int id)
+        {
+            return db.Emps.Find(id);
+        }
+
+        [HttpPost]
+        public void Post([FromBody] Emp emp)
+        {
+            db.Emps.Add(emp);
+            db.SaveChanges();
+        }
+
+       
+        [HttpPut("{id}")]
+        public void Put(int id, [FromBody] Emp emp)
+        {
+            Emp empToUpdate =   db.Emps.Find(id);
+            empToUpdate.Name = emp.Name;
+            empToUpdate.Address = emp.Address;
+            db.SaveChanges();
+        }
+
+    
+        [HttpDelete("{id}")]
+        public void Delete(int id)
+        {
+            Emp empToBeDeleted = db.Emps.Find(id);
+            db.Emps.Remove(empToBeDeleted);
+            db.SaveChanges();
+        }
+    }
+}
+</pre>
+
+<h2>Models</h2>
+<hr>
+
+<h3>Models/Emp.cs</h3>
+<pre>
+using System;
+using System.Collections.Generic;
+using System.Text.Json.Serialization;
+
+namespace LabDemo.Models;
+
+public partial class Emp
+{
+    [JsonPropertyName("No")]
+    public int No { get; set; }
+
+    [JsonPropertyName("Name")]
+    public string? Name { get; set; }
+
+    [JsonPropertyName("Address")]
+    public string? Address { get; set; }
+}
+</pre>
+
+<h3>Models/LabDbContext.cs</h3>
+<pre>
+using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+
+namespace LabDemo.Models;
+
+public partial class LabDbContext : DbContext
+{
+    public LabDbContext()
+    {
+    }
+
+    public LabDbContext(DbContextOptions<LabDbContext> options)
+        : base(options)
+    {
+    }
+
+    public virtual DbSet<Emp> Emps { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        => optionsBuilder.UseSqlServer("Data Source=(LocalDB)\\MSSQLLocalDB;Initial Catalog=LabDB;Integrated Security=True");
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Emp>(entity =>
+        {
+            entity.HasKey(e => e.No).HasName("PK__Emp__3214D4A8A8B70077");
+
+            entity.ToTable("Emp");
+
+            entity.Property(e => e.Address)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+            entity.Property(e => e.Name)
+                .HasMaxLength(50)
+                .IsUnicode(false);
+        });
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+}
+</pre>
+
+<h2>Views</h2>
+<hr>
+
+<h3>Views/Home/Index.cshtml</h3>
+<pre>
+&lt;html&gt;
+    &lt;head&gt;
+    &lt;title&gt;Welcome Home!&lt;/title&gt;
+        &lt;link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" /&gt;
+        &lt;script src="~/lib/jquery/dist/jquery.js"&gt;&lt;/script&gt;
+        &lt;script src="~/lib/bootstrap/dist/js/bootstrap.js"&gt;&lt;/script&gt;
+    &lt;/head&gt;
+    &lt;body class="container"&gt;
+        &lt;br /&gt;
+        &lt;a class="btn btn-success" href="/Home/Create"&gt;Create New Record&lt;/a&gt;
+        &lt;hr /&gt;
+        &lt;div class="table-responsive"&gt;
+            &lt;table class="table table-bordered"&gt;
+                &lt;thead&gt;
+                    &lt;tr&gt;
+                        &lt;th&gt;No&lt;/th&gt;
+                        &lt;th&gt;Name&lt;/th&gt;
+                        &lt;th&gt;Address&lt;/th&gt;
+                        &lt;th&gt;Edit&lt;/th&gt;
+                        &lt;th&gt;Delete&lt;/th&gt;
+                    &lt;/tr&gt;
+                &lt;/thead&gt;
+                
+                &lt;tbody&gt;
+                    @foreach (var item in Model)
+                    {
+                        &lt;tr&gt;
+                            &lt;td&gt;@item.No&lt;/td&gt;
+                            &lt;td&gt;@item.Name&lt;/td&gt;
+                            &lt;td&gt;@item.Address&lt;/td&gt;
+                            &lt;td&gt;
+                                &lt;a href="/Home/Edit/@item.No"&gt;Edit&lt;/a&gt;
+                            &lt;/td&gt;
+                            &lt;td&gt;
+                                &lt;a href="/Home/Delete/@item.No"&gt;Delete&lt;/a&gt;
+                            &lt;/td&gt;
+                        &lt;/tr&gt;
+                    }
+                &lt;/tbody&gt;
+            &lt;/table&gt;
+        &lt;/div&gt;
+    &lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+<h3>Views/Home/Create.cshtml</h3>
+<pre>
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Create New Record!&lt;/title&gt;
+    &lt;link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" /&gt;
+    &lt;script src="~/lib/jquery/dist/jquery.js"&gt;&lt;/script&gt;
+    &lt;script src="~/lib/bootstrap/dist/js/bootstrap.js"&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body class="container"&gt;
+    &lt;form action="/Home/Create" method="post"&gt;
+        &lt;div class="table-responsive"&gt;
+            &lt;table class="table table-bordered"&gt;
+                &lt;tbody&gt;
+                    &lt;tr&gt;
+                        &lt;td&gt;Name&lt;/td&gt;
+                        &lt;td&gt;
+                            &lt;input class="form-control" type="text" name="Name" /&gt;
+                        &lt;/td&gt;
+                    &lt;/tr&gt;
+
+                    &lt;tr&gt;
+                        &lt;td&gt;Address&lt;/td&gt;
+                        &lt;td&gt;
+                            &lt;input class="form-control" type="text" name="Address" /&gt;
+                        &lt;/td&gt;
+                    &lt;/tr&gt;
+
+                    &lt;tr&gt;
+                        &lt;td colspan="2"&gt;
+                            &lt;button class="btn btn-primary"&gt;Save Record&lt;/button&gt;
+                        &lt;/td&gt;
+                    &lt;/tr&gt;
+
+                &lt;/tbody&gt;
+            &lt;/table&gt;
+        &lt;/div&gt;
+    &lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+<h3>Views/Home/Edit.cshtml</h3>
+<pre>
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Edit Record!&lt;/title&gt;
+    &lt;link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" /&gt;
+    &lt;script src="~/lib/jquery/dist/jquery.js"&gt;&lt;/script&gt;
+    &lt;script src="~/lib/bootstrap/dist/js/bootstrap.js"&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body class="container"&gt;
+    &lt;form action="/Home/Edit" method="post"&gt;
+        &lt;div class="table-responsive"&gt;
+            &lt;table class="table table-bordered"&gt;
+                &lt;tbody&gt;
+                    &lt;tr&gt;
+                        &lt;td colspan="2"&gt;
+                            &lt;input name="No" type="hidden" value="@Model.No" /&gt;
+                        &lt;/td&gt;
+                    &lt;/tr&gt;
+                    &lt;tr&gt;
+                        &lt;td&gt;Name&lt;/td&gt;
+                        &lt;td&gt;
+                            &lt;input class="form-control" type="text" name="Name" 
+                                                        value="@Model.Name"/&gt;
+                        &lt;/td&gt;
+                    &lt;/tr&gt;
+
+                    &lt;tr&gt;
+                        &lt;td&gt;Address&lt;/td&gt;
+                        &lt;td&gt;
+                            &lt;input class="form-control" type="text" name="Address"
+                                                        value="@Model.Address" /&gt;
+                        &lt;/td&gt;
+                    &lt;/tr&gt;
+
+                    &lt;tr&gt;
+                        &lt;td colspan="2"&gt;
+                            &lt;button class="btn btn-primary"&gt;Update Record&lt;/button&gt;
+                        &lt;/td&gt;
+                    &lt;/tr&gt;
+
+                &lt;/tbody&gt;
+            &lt;/table&gt;
+        &lt;/div&gt;
+    &lt;/form&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+
+<h2>Filters</h2>
+<hr>
+
+<h3>Filters/LogFilter.cs</h3>
+<pre>
+using LabDemo.Loggers;
+using Microsoft.AspNetCore.Mvc.Filters;
+
+namespace LabDemo.Filters
+{
+    public class LogFilter: ActionFilterAttribute
+    {
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            Logger.CurrentLogger.Log($"{context.HttpContext.Request.Path} is being called");
+        }
+
+        public override void OnActionExecuted(ActionExecutedContext context)
+        {
+            Logger.CurrentLogger.Log($"{context.HttpContext.Request.Path} call is  complete");
+        }
+
+        public override void OnResultExecuting(ResultExecutingContext context)
+        {
+            Logger.CurrentLogger.Log("UI is about to get processed....");
+        }
+
+        public override void OnResultExecuted(ResultExecutedContext context)
+        {
+            Logger.CurrentLogger.Log("UI is processed now.");
+        }
+    }
+}
+</pre>
+
+<h2>Loggers</h2>
+<hr>
+
+<h3>Loggers/Logger.cs</h3>
+<pre>
+namespace LabDemo.Loggers
+{
+    public class Logger
+    {
+        private static Logger logger = new Logger();
+        private Logger(){ }
+
+        public static Logger CurrentLogger { get { return logger; } }
+
+        public void Log(string message)
+        {
+            string logFilePath = "D:\\IACSDLab\\LabDemo\\log.txt";
+            FileStream fileStream = null;
+            
+            if (!File.Exists(logFilePath))
+            {
+                fileStream = new FileStream(logFilePath, FileMode.Create, FileAccess.Write);
+            }
+            else
+            {
+                fileStream = new FileStream(logFilePath, FileMode.Append, FileAccess.Write);
+            }
+
+            StreamWriter writer = new StreamWriter(fileStream);
+            writer.WriteLine($"Logged at {DateTime.Now.ToString()} : {message}");
+
+            writer.Close(); fileStream.Close();
+            writer = null; fileStream = null;
+        }
+    }
+}
+</pre>
+
+</body>
+</html>
