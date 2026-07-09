@@ -3,131 +3,271 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MVC Code Viewer</title>
+<title>Full Stack DevOps Guide</title>
+<style>
+body { font-family: monospace; padding: 20px; background: #1e1e1e; color: #d4d4d4; }
+h1 { color: #569cd6; }
+h2 { color: #4ec9b0; border-bottom: 1px solid #333; }
+h3 { color: #c586c0; }
+pre { background: #2d2d2d; padding: 15px; border-radius: 5px; overflow-x: auto; border-left: 3px solid #569cd6; }
+code { color: #ce9178; }
+.comment { color: #6a9955; }
+.cmd { color: #dcdcaa; }
+</style>
 </head>
 <body>
 
-<h2>Project: New Folder 1 (Java)</h2>
-<hr>
+<h1>Full Stack DevOps — Employee Salary Project</h1>
+<p>Complete guide: Shell Script &rarr; Git &rarr; Docker &rarr; Nginx</p>
 
-<h3>App.java</h3>
+<!-- ============================================================ -->
+<h2>1. EMPLOYEE SALARY SHELL SCRIPT</h2>
 <pre>
-package com.myapp;
+<code>employee.sh</code>
+<span class="comment">#!/bin/bash</span>
 
-/**
- * Hello world!
- *
- */
-public class App 
-{
-    public static void main( String[] args )
-    {
-        System.out.println( "Hello World!" );
+echo "Enter details for 10 employees:"
+
+for ((i=1; i&lt;=10; i++)); do
+    echo "Employee $i name:"
+    read names[$i-1]
+    echo "Employee $i salary:"
+    read salaries[$i-1]
+done
+
+total=0
+max_sal=0
+max_idx=0
+
+for ((i=0; i&lt;10; i++)); do
+    echo "${names[$i]} - ${salaries[$i]}"
+    total=$((total + ${salaries[$i]}))
+    if [ ${salaries[$i]} -gt $max_sal ]; then
+        max_sal=${salaries[$i]}
+        max_idx=$i
+    fi
+done
+
+avg=$((total / 10))
+
+echo ""
+echo "===== RESULTS ====="
+echo "Highest Salary: ${names[$max_idx]} with $max_sal"
+echo "Total Salary: $total"
+echo "Average Salary: $avg"
+
+echo ""
+echo "Sorted by Salary (ascending):"
+for ((i=0; i&lt;10; i++)); do
+    echo "${salaries[$i]}:${names[$i]}"
+done | sort -n | while IFS=: read sal name; do echo "$name - $sal"; done
+
+echo ""
+echo "Sorted by Name:"
+for ((i=0; i&lt;10; i++)); do
+    echo "${names[$i]}:${salaries[$i]}"
+done | sort | while IFS=: read name sal; do echo "$name - $sal"; done
+</pre>
+
+<!-- ============================================================ -->
+<h2>2. JAVA FILE</h2>
+<pre>
+<code>Employee.java</code>
+public class Employee {
+    public static void main(String[] args) {
+        System.out.println("Java program running inside container!");
+        System.out.println("Employee Management System");
     }
 }
 </pre>
 
-<h3>AppTest.java</h3>
+<!-- ============================================================ -->
+<h2>3. NGINX DOCKERFILE</h2>
 <pre>
-package com.myapp;
+<code>Dockerfile</code>
+<span class="comment"># Stage 1: Build with OpenJDK</span>
+FROM openjdk:11 AS builder
+WORKDIR /app
+COPY employee.sh .
+COPY Employee.java .
+RUN javac Employee.java
+RUN chmod +x employee.sh
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+<span class="comment"># Stage 2: Serve with Nginx</span>
+FROM nginx:alpine
+WORKDIR /usr/share/nginx/html
+COPY --from=builder /app/employee.sh /app/
+COPY --from=builder /app/Employee.class /app/
+COPY --from=builder /app/Employee.java /app/
 
-/**
- * Unit test for simple App.
- */
-public class AppTest 
-    extends TestCase
-{
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
-    {
-        super( testName );
-    }
+<span class="comment"># Copy default nginx config</span>
+COPY nginx.conf /etc/nginx/nginx.conf
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
-    }
-
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
-    }
-}
+<span class="comment"># When container starts, run script then java, then nginx</span>
+CMD ["sh", "-c", "cd /app && ./employee.sh && java Employee && nginx -g 'daemon off;'"]
 </pre>
 
-<hr>
-<h2>Project: Day11 / LabDemo (C# ASP.NET Core MVC)</h2>
-<hr>
-
-<h3>Program.cs</h3>
 <pre>
-namespace LabDemo
-{
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
+<code>nginx.conf</code>
+events {
+    worker_connections 1024;
+}
 
-            // Add services to the container.
-            builder.Services.AddControllersWithViews();
+http {
+    server {
+        listen 80;
+        server_name localhost;
 
-            builder.Services.AddCors((options) => {
+        location / {
+            root /usr/share/nginx/html;
+            index index.html;
+        }
 
-                options.AddPolicy("policy1", policy => {
-                    policy.WithOrigins("*").WithMethods("*").WithHeaders("*");
-                });
-
-                options.AddPolicy("policy2", policy => {
-                    policy.WithOrigins("iacsd.com").WithMethods("GET, POST").WithHeaders("*");
-                });
-
-                options.AddPolicy("policy3", policy => {
-                    policy.WithOrigins("iacsd.com, google.com").WithMethods("GET").WithHeaders("content-type");
-                });
-
-            });
-
-            var app = builder.Build();
-
-            // Configure the HTTP request pipeline.
-            if (!app.Environment.IsDevelopment())
-            {
-                app.UseExceptionHandler("/Home/Error");
-            }
-            app.UseStaticFiles();
-
-            app.UseRouting();
-
-            app.UseCors();
-            app.UseAuthorization();
-
-            app.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
-
-            app.Run();
+        location /app {
+            alias /app;
         }
     }
 }
 </pre>
 
-<h2>Controllers</h2>
+<!-- ============================================================ -->
+<h2>4. COMPLETE COMMAND SEQUENCE</h2>
+
+<h3>4a. Setup Commands</h3>
+<pre>
+<span class="cmd">mkdir ~/employee-project</span>
+<span class="cmd">cd ~/employee-project</span>
+<span class="cmd">touch employee.sh Employee.java Dockerfile nginx.conf</span>
+<span class="cmd">chmod +x employee.sh</span>
+<span class="cmd">javac Employee.java</span>
+</pre>
+
+<h3>4b. Git Commands (including config)</h3>
+<pre>
+<span class="comment"># Configure git (first time)</span>
+<span class="cmd">git config --global user.name "Jitender Mirdha"</span>
+<span class="cmd">git config --global user.email "jitender@example.com"</span>
+<span class="cmd">git config --global core.editor "nano"</span>
+<span class="cmd">git config --list</span>
+
+<span class="comment"># Initialize & commit</span>
+<span class="cmd">git init</span>
+<span class="cmd">git status</span>
+<span class="cmd">git add employee.sh Employee.java Employee.class</span>
+<span class="cmd">git status</span>
+<span class="cmd">git commit -m "Initial commit: added employee shell script and Java files"</span>
+
+<span class="comment"># Create & work on feature branch</span>
+<span class="cmd">git checkout -b feature-sort</span>
+<span class="cmd">git branch</span>
+<span class="comment"># (make changes to employee.sh sorting logic)
+</span>
+<span class="cmd">git add employee.sh</span>
+<span class="cmd">git commit -m "Enhanced sorting logic in employee.sh"</span>
+
+<span class="comment"># Create another branch from main</span>
+<span class="cmd">git checkout main</span>
+<span class="cmd">git checkout -b feature-docker</span>
+<span class="cmd">git add Dockerfile nginx.conf</span>
+<span class="cmd">git commit -m "Added Dockerfile and nginx config"</span>
+
+<span class="comment"># Merge branches back to main</span>
+<span class="cmd">git checkout main</span>
+<span class="cmd">git merge feature-sort</span>
+<span class="cmd">git merge feature-docker</span>
+<span class="cmd">git log --oneline --graph --all</span>
+<span class="cmd">git diff</span>
+
+<span class="comment"># Push to remote</span>
+<span class="cmd">git remote add origin https://github.com/JitenderMirdha2046/React_Node.git</span>
+<span class="cmd">git push -u origin main</span>
+</pre>
+
+<h3>4c. Docker Commands (basic, no volumes)</h3>
+<pre>
+<span class="comment"># Build image from Dockerfile</span>
+<span class="cmd">docker build -t employee-app .</span>
+<span class="cmd">docker images</span>
+
+<span class="comment"># Run container in detached mode</span>
+<span class="cmd">docker run -d --name employee-container employee-app</span>
+<span class="cmd">docker ps</span>
+<span class="cmd">docker ps -a</span>
+
+<span class="comment"># Check logs / output</span>
+<span class="cmd">docker logs employee-container</span>
+<span class="cmd">docker logs -f employee-container</span>
+
+<span class="comment"># Execute command inside running container</span>
+<span class="cmd">docker exec -it employee-container sh</span>
+<span class="cmd">docker exec employee-container ls /app</span>
+
+<span class="comment"># Inspect container</span>
+<span class="cmd">docker inspect employee-container</span>
+
+<span class="comment"># Stop & remove container</span>
+<span class="cmd">docker stop employee-container</span>
+<span class="cmd">docker rm employee-container</span>
+
+<span class="comment"># Remove image</span>
+<span class="cmd">docker rmi employee-app</span>
+
+<span class="comment"># Clean up everything</span>
+<span class="cmd">docker system prune -a</span>
+</pre>
+
+<h3>4d. Complete One-Shot Sequence</h3>
+<pre>
+<span class="comment"># ===== SETUP =====</span>
+mkdir ~/employee-project && cd ~/employee-project
+touch employee.sh Employee.java Dockerfile nginx.conf
+chmod +x employee.sh
+javac Employee.java
+
+<span class="comment"># ===== GIT =====</span>
+git config --global user.name "Jitender Mirdha"
+git config --global user.email "jitender@example.com"
+git init
+git add .
+git commit -m "Initial commit"
+git checkout -b feature-sort
+git checkout main
+git checkout -b feature-docker
+git checkout main
+git merge feature-sort
+git merge feature-docker
+git log --oneline --graph --all
+git remote add origin https://github.com/JitenderMirdha2046/React_Node.git
+git push -u origin main
+
+<span class="comment"># ===== DOCKER =====</span>
+docker build -t employee-app .
+docker run -d --name emp-cont employee-app
+docker ps
+docker logs emp-cont
+docker stop emp-cont
+docker rm emp-cont
+docker rmi employee-app
+</pre>
+
+<!-- ============================================================ -->
+<h2>5. PROJECT STRUCTURE</h2>
+<pre>
+~/employee-project/
+  |
+  +-- employee.sh         <span class="comment"># Shell script (employee salary program)</span>
+  +-- Employee.java       <span class="comment"># Java file</span>
+  +-- Employee.class      <span class="comment"># Compiled Java bytecode</span>
+  +-- Dockerfile          <span class="comment"># Multi-stage: OpenJDK build + Nginx serve</span>
+  +-- nginx.conf          <span class="comment"># Nginx configuration</span>
+  +-- .git/               <span class="comment"># Git repository</span>
+</pre>
+
+<!-- ============================================================ -->
+<h2>6. EXISTING REPO CODE (React_Node)</h2>
 <hr>
+
+<h3>Controllers</h3>
 
 <h3>Controllers/BaseController.cs</h3>
 <pre>
@@ -163,11 +303,9 @@ namespace LabDemo.Controllers
         [HttpGet]
         public IActionResult Create()
         {
-            //Let us return Empty Form UI with Name and Address textboxes 
             return View("Create");
         }
 
-        //Below method is called after new data is submitted from User / Browser
         [HttpPost]
         public IActionResult Create(Emp emp)
         {
@@ -180,19 +318,15 @@ namespace LabDemo.Controllers
         public IActionResult Edit(int? id)
         {
             Emp empToBeModified = db.Emps.Find(id);
-
-            //Let us return Form UI filled with existing Emp Data
             return View("Edit", empToBeModified);
         }
 
-        //Below method is called after updated data is submitted from User / Browser
         [HttpPost]
         public IActionResult Edit(Emp empUpdated)
         {
             Emp emp = db.Emps.Find(empUpdated.No);
             emp.Name = empUpdated.Name;
             emp.Address = empUpdated.Address;
-
             db.SaveChanges();
             return Redirect("/Home/Index");
         }
@@ -200,10 +334,8 @@ namespace LabDemo.Controllers
         public IActionResult Delete(int? id)
         {
             Emp empToBeDeleted = db.Emps.Find(id);
-
             db.Emps.Remove(empToBeDeleted);
             db.SaveChanges();
-
             return Redirect("/Home/Index");
         }
     }
@@ -238,8 +370,6 @@ using LabDemo.Models;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace LabDemo.Controllers
 {
     [Route("api/[controller]")]
@@ -250,7 +380,7 @@ namespace LabDemo.Controllers
         LabDbContext db = new LabDbContext();
 
         [HttpGet]
-        public IEnumerable<Emp> Get()
+        public IEnumerable&lt;Emp&gt; Get()
         {
             return db.Emps.ToList();
         }
@@ -268,17 +398,15 @@ namespace LabDemo.Controllers
             db.SaveChanges();
         }
 
-       
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] Emp emp)
         {
-            Emp empToUpdate =   db.Emps.Find(id);
+            Emp empToUpdate = db.Emps.Find(id);
             empToUpdate.Name = emp.Name;
             empToUpdate.Address = emp.Address;
             db.SaveChanges();
         }
 
-    
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
@@ -328,28 +456,28 @@ public partial class LabDbContext : DbContext
     {
     }
 
-    public LabDbContext(DbContextOptions<LabDbContext> options)
+    public LabDbContext(DbContextOptions&lt;LabDbContext&gt; options)
         : base(options)
     {
     }
 
-    public virtual DbSet<Emp> Emps { get; set; }
+    public virtual DbSet&lt;Emp&gt; Emps { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         => optionsBuilder.UseSqlServer("Data Source=(LocalDB)\\MSSQLLocalDB;Initial Catalog=LabDB;Integrated Security=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Emp>(entity =>
+        modelBuilder.Entity&lt;Emp&gt;(entity =&gt;
         {
-            entity.HasKey(e => e.No).HasName("PK__Emp__3214D4A8A8B70077");
+            entity.HasKey(e =&gt; e.No).HasName("PK__Emp__3214D4A8A8B70077");
 
             entity.ToTable("Emp");
 
-            entity.Property(e => e.Address)
+            entity.Property(e =&gt; e.Address)
                 .HasMaxLength(50)
                 .IsUnicode(false);
-            entity.Property(e => e.Name)
+            entity.Property(e =&gt; e.Name)
                 .HasMaxLength(50)
                 .IsUnicode(false);
         });
@@ -388,7 +516,7 @@ public partial class LabDbContext : DbContext
                         &lt;th&gt;Delete&lt;/th&gt;
                     &lt;/tr&gt;
                 &lt;/thead&gt;
-                
+
                 &lt;tbody&gt;
                     @foreach (var item in Model)
                     {
@@ -475,7 +603,7 @@ public partial class LabDbContext : DbContext
                     &lt;tr&gt;
                         &lt;td&gt;Name&lt;/td&gt;
                         &lt;td&gt;
-                            &lt;input class="form-control" type="text" name="Name" 
+                            &lt;input class="form-control" type="text" name="Name"
                                                         value="@Model.Name"/&gt;
                         &lt;/td&gt;
                     &lt;/tr&gt;
@@ -555,7 +683,7 @@ namespace LabDemo.Loggers
         {
             string logFilePath = "D:\\IACSDLab\\LabDemo\\log.txt";
             FileStream fileStream = null;
-            
+
             if (!File.Exists(logFilePath))
             {
                 fileStream = new FileStream(logFilePath, FileMode.Create, FileAccess.Write);
