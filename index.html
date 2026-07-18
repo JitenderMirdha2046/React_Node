@@ -3,263 +3,354 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Full Stack DevOps Guide</title>
+<title>All CRUD Operations - ASP.NET Core</title>
 <style>
 body { font-family: monospace; padding: 20px; background: #1e1e1e; color: #d4d4d4; }
 h1 { color: #569cd6; }
 h2 { color: #4ec9b0; border-bottom: 1px solid #333; }
 h3 { color: #c586c0; }
-pre { background: #2d2d2d; padding: 15px; border-radius: 5px; overflow-x: auto; border-left: 3px solid #569cd6; }
+pre { background: #2d2d2d; padding: 15px; border-radius: 5px; overflow-x: auto; border-left: 3px solid #569cd6; white-space: pre-wrap; }
 code { color: #ce9178; }
-.comment { color: #6a9955; }
-.cmd { color: #dcdcaa; }
+.section { margin-bottom: 30px; }
+.path { color: #dcdcaa; font-weight: bold; }
 </style>
 </head>
 <body>
 
-<h1>Full Stack DevOps — Employee Salary Project</h1>
-<p>Complete guide: Shell Script &rarr; Git &rarr; Docker &rarr; Nginx</p>
+<h1>All CRUD Operations - ASP.NET Core MVC</h1>
+<p>Complete code for Employee CRUD: Controller, Models, Views</p>
 
 <!-- ============================================================ -->
-<h2>1. EMPLOYEE SALARY SHELL SCRIPT — employee.sh</h2>
+<div class="section">
+<h2>1. CONTROLLER - HomeController.cs</h2>
+<p class="path">Controllers/HomeController.cs</p>
 <pre>
-<span class="comment">#!/bin/bash</span>
+using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+using AllCRUDOperations.Models;
 
-echo "Enter details for 10 employees:"
+namespace AllCRUDOperations.Controllers
+{
+    public class HomeController : Controller
+    {
+        SampleDbContext dbContext = new SampleDbContext();
 
-for ((i=1; i&lt;=10; i++)); do
-    echo "Employee $i name:"
-    read names[$i-1]
-    echo "Employee $i salary:"
-    read salaries[$i-1]
-done
-
-total=0
-max_sal=0
-max_idx=0
-
-for ((i=0; i&lt;10; i++)); do
-    echo "${names[$i]} - ${salaries[$i]}"
-    total=$((total + ${salaries[$i]}))
-    if [ ${salaries[$i]} -gt $max_sal ]; then
-        max_sal=${salaries[$i]}
-        max_idx=$i
-    fi
-done
-
-avg=$((total / 10))
-
-echo ""
-echo "===== RESULTS ====="
-echo "Highest Salary: ${names[$max_idx]} with $max_sal"
-echo "Total Salary: $total"
-echo "Average Salary: $avg"
-
-echo ""
-echo "Sorted by Salary (ascending):"
-for ((i=0; i&lt;10; i++)); do
-    echo "${salaries[$i]}:${names[$i]}"
-done | sort -n | while IFS=: read sal name; do echo "$name - $sal"; done
-
-echo ""
-echo "Sorted by Name:"
-for ((i=0; i&lt;10; i++)); do
-    echo "${names[$i]}:${salaries[$i]}"
-done | sort | while IFS=: read name sal; do echo "$name - $sal"; done
-</pre>
-
-<!-- ============================================================ -->
-<h2>2. JAVA FILE — Employee.java</h2>
-<pre>
-public class Employee {
-    public static void main(String[] args) {
-        System.out.println("Java program running inside container!");
-        System.out.println("Employee Management System");
-    }
-}
-</pre>
-
-<!-- ============================================================ -->
-<h2>3. DOCKERFILE (Multi-stage: OpenJDK + Nginx)</h2>
-<pre>
-<span class="comment"># Stage 1: Build with OpenJDK</span>
-FROM openjdk:11 AS builder
-WORKDIR /app
-COPY employee.sh .
-COPY Employee.java .
-RUN javac Employee.java
-RUN chmod +x employee.sh
-
-<span class="comment"># Stage 2: Serve with Nginx</span>
-FROM nginx:alpine
-WORKDIR /usr/share/nginx/html
-COPY --from=builder /app/employee.sh /app/
-COPY --from=builder /app/Employee.class /app/
-COPY --from=builder /app/Employee.java /app/
-
-<span class="comment"># Copy default nginx config</span>
-COPY nginx.conf /etc/nginx/nginx.conf
-
-<span class="comment"># When container starts, run script then java, then nginx</span>
-CMD ["sh", "-c", "cd /app && ./employee.sh && java Employee && nginx -g 'daemon off;'"]
-</pre>
-
-<h3>nginx.conf</h3>
-<pre>
-events {
-    worker_connections 1024;
-}
-
-http {
-    server {
-        listen 80;
-        server_name localhost;
-
-        location / {
-            root /usr/share/nginx/html;
-            index index.html;
+        public IActionResult Index()
+        {
+            return View(dbContext.Employees.ToList());
         }
 
-        location /app {
-            alias /app;
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        public IActionResult AfterCreate(Employee emp)
+        {
+            dbContext.Add(emp);
+            dbContext.SaveChanges();
+            return Redirect("/Home/Index");
+        }
+
+        public IActionResult Edit(int? id)
+        {
+            Employee edited = dbContext.Employees.Find(id);
+            return View("Edit", edited);
+        }
+
+        public IActionResult AfterEdit(Employee emp)
+        {
+            Employee update = dbContext.Employees.Find(emp.No);
+            update.Name = emp.Name;
+            update.Address = emp.Address;
+
+            dbContext.SaveChanges();
+            return Redirect("/Home/Index");
+        }
+
+        public IActionResult delete(int? id)
+        {
+            Employee deleted = dbContext.Employees.Find(id);
+            dbContext.Remove(deleted);
+            dbContext.SaveChanges();
+            return Redirect("/Home/Index");
         }
     }
 }
 </pre>
+</div>
 
 <!-- ============================================================ -->
+<div class="section">
+<h2>2. MODELS</h2>
+
+<h3>2a. Employee.cs</h3>
+<p class="path">Models/Employee.cs</p>
+<pre>
+using System;
+using System.Collections.Generic;
+
+namespace AllCRUDOperations.Models;
+
+public partial class Employee
+{
+    public int No { get; set; }
+
+    public string Name { get; set; } = null!;
+
+    public string Address { get; set; } = null!;
+}
+</pre>
+
+<h3>2b. Subject.cs</h3>
+<p class="path">Models/Subject.cs</p>
+<pre>
+using System;
+using System.Collections.Generic;
+
+namespace AllCRUDOperations.Models;
+
+public partial class Subject
+{
+    public int SubjectId { get; set; }
+
+    public string SubjectName { get; set; } = null!;
+}
+</pre>
+
+<h3>2c. Trainer.cs</h3>
+<p class="path">Models/Trainer.cs</p>
+<pre>
+using System;
+using System.Collections.Generic;
+
+namespace AllCRUDOperations.Models;
+
+public partial class Trainer
+{
+    public int TrainerId { get; set; }
+
+    public string TrainerName { get; set; } = null!;
+}
+</pre>
+
+<h3>2d. SampleDbContext.cs</h3>
+<p class="path">Models/SampleDbContext.cs</p>
+<pre>
+using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+
+namespace AllCRUDOperations.Models;
+
+public partial class SampleDbContext : DbContext
+{
+    public SampleDbContext()
+    {
+    }
+
+    public SampleDbContext(DbContextOptions&lt;SampleDbContext&gt; options)
+        : base(options)
+    {
+    }
+
+    public virtual DbSet&lt;Employee&gt; Employees { get; set; }
+
+    public virtual DbSet&lt;Subject&gt; Subjects { get; set; }
+
+    public virtual DbSet&lt;Trainer&gt; Trainers { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        =&gt; optionsBuilder.UseSqlServer("Data Source=(LocalDB)\\MSSQLLocalDB;Initial Catalog=SampleDB;Integrated Security=True");
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity&lt;Employee&gt;(entity =&gt;
+        {
+            entity.HasKey(e =&gt; e.No);
+
+            entity.ToTable("Employee");
+
+            entity.Property(e =&gt; e.Address).HasMaxLength(50);
+            entity.Property(e =&gt; e.Name).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity&lt;Subject&gt;(entity =&gt;
+        {
+            entity.ToTable("Subject");
+
+            entity.Property(e =&gt; e.SubjectName).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity&lt;Trainer&gt;(entity =&gt;
+        {
+            entity.ToTable("Trainer");
+
+            entity.Property(e =&gt; e.TrainerName).HasMaxLength(50);
+        });
+
+        OnModelCreatingPartial(modelBuilder);
+    }
+
+    partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+}
+</pre>
+</div>
+
+<!-- ============================================================ -->
+<div class="section">
+<h2>3. VIEWS</h2>
+
+<h3>3a. Index.cshtml (Employee List)</h3>
+<p class="path">Views/Home/Index.cshtml</p>
+<pre>
+&lt;!DOCTYPE html&gt;
+    &lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt;All Employess&lt;/title&gt;
+        &lt;link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet"/&gt;
+        &lt;link href="~/lib/jquery/dist/jquery.min.js"/&gt;
+        &lt;link href="~/lib/bootstrap/dist/js/bootstrap.min.js"/&gt;
+    &lt;/head&gt;
+&lt;body class="container"&gt;
+    &lt;a href="/Home/Create" class="btn btn-primary"&gt;Create New Record&lt;/a&gt;
+    &lt;hr/&gt;
+            &lt;div class="table-responsive"&gt;
+                &lt;table class="table table-bordered text-center"&gt; 
+                    &lt;thead&gt; 
+                        &lt;tr&gt;
+                            &lt;th&gt;No&lt;/th&gt; 
+                            &lt;th&gt;Name&lt;/th&gt;
+                            &lt;th&gt;Address&lt;/th&gt; 
+                        &lt;/tr&gt;
+                    &lt;/thead&gt;
+                    &lt;tbody&gt;
+                        @foreach(var emp in Model)
+                        {
+                            &lt;tr&gt;
+                                &lt;td&gt;@emp.No&lt;/td&gt;
+                                &lt;td&gt;@emp.Name&lt;/td&gt;
+                                &lt;td&gt;@emp.Address&lt;/td&gt;
+                                &lt;td&gt;
+                                    &lt;a class="btn btn-warning" href="/Home/Edit/@emp.No"&gt;Edit&lt;/a&gt;
+                                &lt;/td&gt;
+                                &lt;td&gt;
+                                    &lt;a class="btn btn-warning" href="/Home/Delete/@emp.No"&gt;Delete&gt;&lt;/a&gt;
+                                &lt;/td&gt;
+                            &lt;/tr&gt;
+                        }
+                    &lt;/tbody&gt;       
+                &lt;/table&gt;
+            &lt;/div&gt;
+    &lt;/body&gt;
+    &lt;/html&gt;
+</pre>
+
+<h3>3b. Create.cshtml (Create Form)</h3>
+<p class="path">Views/Home/Create.cshtml</p>
+<pre>
+&lt;!DOCTYPE html&gt;
+    &lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt;Create Record&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body&gt;
+        &lt;form method="post" action="/Home/AfterCreate"&gt;
+        &lt;table&gt;
+            &lt;tbody&gt;
+                &lt;tr&gt;
+                    &lt;td&gt;Name&lt;/td&gt;
+                    &lt;td&gt;
+                        &lt;input type="text" name="Name"/&gt;
+                    &lt;/td&gt;
+                &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;Address&lt;/td&gt;
+                &lt;td&gt;
+                    &lt;input type="text" name="Address" /&gt;
+                &lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;tr&gt;
+                &lt;td&gt;
+                    &lt;button&gt;Add Record&lt;/button&gt; 
+                &lt;/td&gt;
+            &lt;/tr&gt;
+            &lt;/tbody&gt;
+        &lt;/table&gt;
+    &lt;/form&gt;
+    &lt;/body&gt;
+    &lt;/html&gt;
+</pre>
+
+<h3>3c. Edit.cshtml (Edit Form)</h3>
+<p class="path">Views/Home/Edit.cshtml</p>
+<pre>
+&lt;!DOCTYPE html&gt;
+    &lt;html&gt;
+    &lt;head&gt;
+        &lt;title&gt;Edit Record&lt;/title&gt;
+    &lt;/head&gt;
+    &lt;body class="container"&gt;
+    &lt;form method="post" action="/Home/AfterEdit"&gt;
+        &lt;div class="table-responsive"&gt;
+            &lt;table class="table table-bordered text-center"&gt;
+            &lt;tbody&gt;
+                &lt;tr&gt;
+                    &lt;td&gt;
+                        &lt;input type="hidden" name="No" value="@Model.No"/&gt;
+                    &lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td&gt;Name&lt;/td&gt;
+                    &lt;td&gt;
+                        &lt;input type="text" name="Name" value="@Model.Name"/&gt;
+                    &lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td&gt;Address&lt;/td&gt;
+                    &lt;td&gt;
+                        &lt;input type="text" name="Address" value="@Model.Address"/&gt;
+                    &lt;/td&gt;
+                &lt;/tr&gt;
+                &lt;tr&gt;
+                    &lt;td&gt;
+                        &lt;button&gt;Update Record&lt;/button&gt;
+                    &lt;/td&gt;
+                &lt;/tr&gt;
+            &lt;/tbody&gt;
+        &lt;/table&gt;
+        &lt;/div&gt;
+    &lt;/form&gt;
+    &lt;/body&gt;
+    &lt;/html&gt;
+</pre>
+</div>
+
+<!-- ============================================================ -->
+<div class="section">
 <h2>4. PROJECT STRUCTURE</h2>
 <pre>
-~/employee-project/
+AllCRUDOperations/
   |
-  +-- employee.sh         <span class="comment"># Shell script (employee salary program)</span>
-  +-- Employee.java       <span class="comment"># Java file</span>
-  +-- Employee.class      <span class="comment"># Compiled Java bytecode</span>
-  +-- Dockerfile          <span class="comment"># Multi-stage: OpenJDK build + Nginx serve</span>
-  +-- nginx.conf          <span class="comment"># Nginx configuration</span>
-  +-- .git/               <span class="comment"># Git repository</span>
+  +-- Controllers/
+  |     +-- HomeController.cs      <span style="color:#6a9955"># CRUD actions</span>
+  |
+  +-- Models/
+  |     +-- Employee.cs            <span style="color:#6a9955"># Employee entity</span>
+  |     +-- Subject.cs             <span style="color:#6a9955"># Subject entity</span>
+  |     +-- Trainer.cs             <span style="color:#6a9955"># Trainer entity</span>
+  |     +-- SampleDbContext.cs     <span style="color:#6a9955"># EF Core DbContext</span>
+  |
+  +-- Views/
+  |     +-- Home/
+  |           +-- Index.cshtml     <span style="color:#6a9955"># List all employees</span>
+  |           +-- Create.cshtml    <span style="color:#6a9955"># Create form</span>
+  |           +-- Edit.cshtml      <span style="color:#6a9955"># Edit form</span>
+  |
+  +-- Program.cs
+  +-- AllCRUDOperations.csproj
 </pre>
-
-<!-- ============================================================ -->
-<h2>5. COMPLETE COMMAND SEQUENCE</h2>
-
-<h3>5a. Setup Commands</h3>
-<pre>
-<span class="cmd">mkdir ~/employee-project</span>
-<span class="cmd">cd ~/employee-project</span>
-<span class="cmd">touch employee.sh Employee.java Dockerfile nginx.conf</span>
-<span class="cmd">chmod +x employee.sh</span>
-<span class="cmd">javac Employee.java</span>
-</pre>
-
-<h3>5b. Git Config Commands</h3>
-<pre>
-<span class="cmd">git config --global user.name "Jitender Mirdha"</span>
-<span class="cmd">git config --global user.email "jitender@example.com"</span>
-<span class="cmd">git config --global core.editor "nano"</span>
-<span class="cmd">git config --list</span>
-</pre>
-
-<h3>5c. Git Commands (init, branch, merge, push)</h3>
-<pre>
-<span class="comment"># Initialize &amp; first commit</span>
-<span class="cmd">git init</span>
-<span class="cmd">git status</span>
-<span class="cmd">git add employee.sh Employee.java Employee.class Dockerfile nginx.conf</span>
-<span class="cmd">git status</span>
-<span class="cmd">git commit -m "Initial commit: employee project"</span>
-
-<span class="comment"># Create feature branch for sort enhancement</span>
-<span class="cmd">git checkout -b feature-sort</span>
-<span class="cmd">git branch</span>
-<span class="comment"># (edit employee.sh sorting section, then:)</span>
-<span class="cmd">git add employee.sh</span>
-<span class="cmd">git commit -m "Enhanced sorting in employee.sh"</span>
-
-<span class="comment"># Create another branch for Docker setup</span>
-<span class="cmd">git checkout main</span>
-<span class="cmd">git checkout -b feature-docker</span>
-<span class="cmd">git add Dockerfile nginx.conf</span>
-<span class="cmd">git commit -m "Added Dockerfile and nginx config"</span>
-
-<span class="comment"># Merge both branches into main</span>
-<span class="cmd">git checkout main</span>
-<span class="cmd">git merge feature-sort</span>
-<span class="cmd">git merge feature-docker</span>
-<span class="cmd">git log --oneline --graph --all</span>
-
-<span class="comment"># Push to remote</span>
-<span class="cmd">git remote add origin https://github.com/JitenderMirdha2046/React_Node.git</span>
-<span class="cmd">git push -u origin main</span>
-</pre>
-
-<h3>5d. Docker Commands (no volumes, basic)</h3>
-<pre>
-<span class="comment"># Build image</span>
-<span class="cmd">docker build -t employee-app .</span>
-<span class="cmd">docker images</span>
-
-<span class="comment"># Run container detached</span>
-<span class="cmd">docker run -d --name employee-container employee-app</span>
-<span class="cmd">docker ps</span>
-<span class="cmd">docker ps -a</span>
-
-<span class="comment"># Check output</span>
-<span class="cmd">docker logs employee-container</span>
-<span class="cmd">docker logs -f employee-container</span>
-
-<span class="comment"># Execute inside running container</span>
-<span class="cmd">docker exec -it employee-container sh</span>
-<span class="cmd">docker exec employee-container ls /app</span>
-
-<span class="comment"># Inspect</span>
-<span class="cmd">docker inspect employee-container</span>
-
-<span class="comment"># Stop &amp; remove</span>
-<span class="cmd">docker stop employee-container</span>
-<span class="cmd">docker rm employee-container</span>
-
-<span class="comment"># Remove image</span>
-<span class="cmd">docker rmi employee-app</span>
-
-<span class="comment"># Full cleanup</span>
-<span class="cmd">docker system prune -a</span>
-</pre>
-
-<!-- ============================================================ -->
-<h2>6. ONE-SHOT FULL SEQUENCE (copy-paste ready)</h2>
-<pre>
-<span class="comment"># ===== SETUP =====</span>
-mkdir ~/employee-project && cd ~/employee-project
-touch employee.sh Employee.java Dockerfile nginx.conf
-chmod +x employee.sh
-javac Employee.java
-
-<span class="comment"># ===== GIT =====</span>
-git config --global user.name "Jitender Mirdha"
-git config --global user.email "jitender@example.com"
-git init
-git add .
-git commit -m "Initial commit"
-git checkout -b feature-sort
-git checkout main
-git checkout -b feature-docker
-git checkout main
-git merge feature-sort
-git merge feature-docker
-git log --oneline --graph --all
-git remote add origin https://github.com/JitenderMirdha2046/React_Node.git
-git push -u origin main
-
-<span class="comment"># ===== DOCKER =====</span>
-docker build -t employee-app .
-docker run -d --name emp-cont employee-app
-docker ps
-docker logs emp-cont
-docker stop emp-cont
-docker rm emp-cont
-docker rmi employee-app
-</pre>
+</div>
 
 </body>
 </html>
